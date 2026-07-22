@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DriverOffers</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --bg2: #1a1f2e;
+    --bg3: #242938;
+    --acc: #F5A623;
+    --acc2: #ffc14d;
+    --white: #ffffff;
+    --gray: #8b909e;
+    --gray2: #555b6e;
+    --green: #22c55e;
+    --blue: #3b82f6;
+    --red: #ef4444;
+    --purple: #8b5cf6;
+    --card-r: 14px;
+    --font: -apple-system, 'SF Pro Display', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--white); font-family: var(--font); overflow: hidden; }
+
+  /* ── LAYOUT ── */
+  #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+  #content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 72px; }
+  #content::-webkit-scrollbar { display: none; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    padding: 14px 16px 10px;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+  }
+  .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+  .logo span { color: var(--acc); }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .badge-verified {
+    background: rgba(34,197,94,0.15); color: var(--green);
+    font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 20px;
+    border: 1px solid rgba(34,197,94,0.3);
+  }
+  .icon-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--bg3); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; color: var(--gray); font-size: 16px; }
+
+  /* ── AD BOX BANNER ── */
+  .adbox-banner {
+    margin: 0 14px 10px;
+    background: linear-gradient(135deg, #1a1208 0%, #2a1f06 100%);
+    border-radius: var(--card-r);
+    padding: 14px 16px;
+    border: 1px solid rgba(245,166,35,0.4);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .adbox-banner::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(245,166,35,0.15) 0%, transparent 70%);
+  }
+  .adbox-inner { display: flex; align-items: center; gap: 14px; }
+  .adbox-icon {
+    width: 52px; height: 52px; flex-shrink: 0;
+    background: rgba(245,166,35,0.15); border-radius: 12px;
+    border: 1px solid rgba(245,166,35,0.3);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 2px;
+  }
+  .adbox-icon-box { width: 28px; height: 20px; border: 2px solid var(--acc); border-radius: 3px; position: relative; }
+  .adbox-icon-box::after { content: ''; position: absolute; top: 2px; left: 2px; right: 2px; height: 4px; background: var(--acc); border-radius: 1px; opacity: 0.5; }
+  .adbox-icon-light { width: 6px; height: 6px; border-radius: 50%; background: var(--acc); animation: blink 1.2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .adbox-body { flex: 1; min-width: 0; }
+  .adbox-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(245,166,35,0.2); color: var(--acc);
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+    border: 1px solid rgba(245,166,35,0.4); margin-bottom: 5px;
+    text-transform: uppercase; letter-spacing: 0.4px;
+  }
+  .adbox-title { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+  .adbox-rewards { display: flex; gap: 6px; flex-wrap: wrap; }
+  .adbox-pill {
+    font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+  }
+  .adbox-pill.money { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .adbox-pill.comm  { background: rgba(245,166,35,0.15); color: var(--acc);   border: 1px solid rgba(245,166,35,0.3); }
+  .adbox-arrow { color: rgba(255,255,255,0.3); font-size: 20px; flex-shrink: 0; }
+
+  /* ── PROMO BANNER ── */
+  .promo-banner {
+    margin: 12px 14px;
+    background: linear-gradient(135deg, #1a2a4a 0%, #0d1b35 100%);
+    border-radius: var(--card-r);
+    padding: 16px;
+    border: 1px solid rgba(59,130,246,0.3);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .promo-banner::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, transparent 70%);
+  }
+  .promo-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(59,130,246,0.2); color: #60a5fa;
+    font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+    border: 1px solid rgba(59,130,246,0.4); margin-bottom: 8px;
+  }
+  .promo-tag::before { content: '★'; font-size: 10px; }
+  .promo-banner h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: var(--white); }
+  .promo-banner p { font-size: 12px; color: #93c5fd; line-height: 1.4; margin-bottom: 10px; }
+  .promo-meta { display: flex; align-items: center; gap: 10px; }
+  .promo-badge {
+    background: linear-gradient(135deg, var(--acc), var(--acc2));
+    color: #000; font-size: 12px; font-weight: 800;
+    padding: 5px 12px; border-radius: 20px;
+  }
+  .promo-timer { font-size: 11px; color: var(--gray); display: flex; align-items: center; gap: 4px; }
+  .timer-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .promo-banner .arrow { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: rgba(255,255,255,0.3); }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    padding: 4px 16px 10px;
+    font-size: 13px; font-weight: 600; color: var(--gray);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  /* ── CATEGORY SCROLL ── */
+  .cats-wrap { overflow-x: auto; padding: 0 14px 4px; scrollbar-width: none; }
+  .cats-wrap::-webkit-scrollbar { display: none; }
+  .cats { display: flex; gap: 8px; width: max-content; }
+  .cat-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--bg3); border-radius: 12px;
+    padding: 10px 14px; cursor: pointer; border: 1.5px solid transparent;
+    transition: all 0.2s; min-width: 72px;
+  }
+  .cat-btn.active { background: rgba(245,166,35,0.12); border-color: var(--acc); }
+  .cat-icon { font-size: 22px; line-height: 1; }
+  .cat-label { font-size: 11px; color: var(--gray); font-weight: 500; text-align: center; white-space: nowrap; }
+  .cat-btn.active .cat-label { color: var(--acc); font-weight: 600; }
+
+  /* ── OFFER CARDS ── */
+  .offers-list { padding: 4px 14px 8px; display: flex; flex-direction: column; gap: 10px; }
+  .offer-card {
+    background: var(--bg2);
+    border-radius: var(--card-r);
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    active: scale(0.98);
+  }
+  .offer-card:active { transform: scale(0.98); border-color: rgba(245,166,35,0.3); }
+  .offer-inner { display: flex; align-items: center; gap: 12px; padding: 14px; }
+  .offer-logo {
+    width: 52px; height: 52px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0; font-weight: 700; font-size: 15px;
+  }
+  .offer-body { flex: 1; min-width: 0; }
+  .offer-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .offer-desc { font-size: 12px; color: var(--gray); line-height: 1.4; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .offer-footer { display: flex; align-items: center; gap: 6px; }
+  .offer-discount {
+    background: rgba(245,166,35,0.15); color: var(--acc);
+    font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px;
+    border: 1px solid rgba(245,166,35,0.3);
+  }
+  .offer-used { font-size: 11px; color: var(--gray2); }
+  .offer-arrow { color: var(--gray2); font-size: 18px; flex-shrink: 0; }
+  .offer-hot {
+    position: absolute; top: 10px; right: 10px;
+    background: var(--red); color: white; font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 20px;
+  }
+  .offer-card { position: relative; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--bg2);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 20;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    padding: 10px 0 8px; cursor: pointer; gap: 4px;
+    border: none; background: none;
+  }
+  .nav-icon { font-size: 22px; line-height: 1; }
+  .nav-label { font-size: 10px; color: var(--gray); font-weight: 500; }
+  .nav-item.active .nav-label { color: var(--acc); }
+  .nav-item.active .nav-icon { filter: none; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 100; display: none; align-items: flex-end;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border-radius: 20px 20px 0 0;
+    width: 100%; padding: 0 0 32px;
+    max-height: 90vh; overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 36px; height: 4px; background: var(--bg3); border-radius: 2px; margin: 12px auto 16px; }
+  .modal-header { padding: 0 20px 16px; display: flex; gap: 14px; align-items: center; }
+  .modal-logo { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+  .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .modal-cat { font-size: 12px; color: var(--gray); }
+  .modal-body { padding: 0 20px; }
+  .modal-discount-big {
+    background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-discount-val { font-size: 28px; font-weight: 800; color: var(--acc); }
+  .modal-discount-label { font-size: 12px; color: var(--gray); margin-top: 2px; }
+  .modal-discount-expires { font-size: 11px; color: var(--gray); text-align: right; }
+  .modal-desc-title { font-size: 13px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; }
+  .modal-desc-text { font-size: 14px; color: #c5c8d4; line-height: 1.6; margin-bottom: 16px; }
+  .conditions { background: var(--bg3); border-radius: 10px; padding: 12px; margin-bottom: 20px; }
+  .condition-item { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--gray); margin-bottom: 6px; line-height: 1.4; }
+  .condition-item:last-child { margin-bottom: 0; }
+  .condition-icon { flex-shrink: 0; color: var(--acc); margin-top: 1px; }
+  .get-btn {
+    width: 100%; padding: 16px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--acc), var(--acc2));
+    color: #000; font-size: 16px; font-weight: 700;
+    border: none; cursor: pointer; transition: opacity 0.2s;
+  }
+  .get-btn:active { opacity: 0.85; }
+
+  /* ── COUPON SCREEN ── */
+  .coupon-wrap { text-align: center; padding: 20px; }
+  .coupon-icon { font-size: 52px; margin-bottom: 8px; }
+  .coupon-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .coupon-sub { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
+  .coupon-code {
+    background: var(--bg3); border-radius: 12px; padding: 18px;
+    border: 2px dashed rgba(245,166,35,0.4); margin-bottom: 16px;
+    cursor: pointer;
+  }
+  .coupon-code-val { font-size: 26px; font-weight: 800; letter-spacing: 4px; color: var(--acc); }
+  .coupon-copy-hint { font-size: 11px; color: var(--gray); margin-top: 6px; }
+  .coupon-steps { text-align: left; background: var(--bg3); border-radius: 12px; padding: 14px; }
+  .coupon-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 13px; color: #c5c8d4; }
+  .coupon-step:last-child { margin-bottom: 0; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--acc); color: #000; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* ── PROFILE PAGE ── */
+  .profile-page { padding: 16px; }
+  .profile-header { background: var(--bg2); border-radius: var(--card-r); padding: 20px; margin-bottom: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.07); }
+  .profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--acc), var(--acc2)); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 12px; }
+  .profile-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .profile-status { display: inline-flex; align-items: center; gap: 5px; background: rgba(34,197,94,0.15); color: var(--green); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+  .profile-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .stat-card { background: var(--bg2); border-radius: 12px; padding: 14px 10px; text-align: center; border: 1px solid rgba(255,255,255,0.07); }
+  .stat-val { font-size: 20px; font-weight: 700; color: var(--acc); }
+  .stat-label { font-size: 11px; color: var(--gray); margin-top: 3px; }
+  .menu-section { background: var(--bg2); border-radius: var(--card-r); overflow: hidden; border: 1px solid rgba(255,255,255,0.07); margin-bottom: 10px; }
+  .menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .menu-item-text { flex: 1; font-size: 14px; }
+  .menu-item-arrow { color: var(--gray2); font-size: 16px; }
+
+  /* ── EMPTY ── */
+  .empty { text-align: center; padding: 50px 30px; }
+  .empty-icon { font-size: 48px; margin-bottom: 14px; }
+  .empty-text { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; color: var(--gray); }
+
+  /* ── PAGE TRANSITIONS ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+    background: var(--bg3); color: var(--white); font-size: 13px; font-weight: 500;
+    padding: 10px 18px; border-radius: 20px; z-index: 200;
+    border: 1px solid rgba(255,255,255,0.1);
+    opacity: 0; transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  .divider { height: 1px; background: rgba(255,255,255,0.05); margin: 0 14px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo">Driver<span>Offers</span></div>
+    <div class="topbar-right">
+      <div class="badge-verified">✓ Водитель</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- PAGE: HOME -->
+    <div class="page active" id="page-home">
+
+      <!-- AD BOX BANNER -->
+      <div class="adbox-banner" onclick="openAdbox()">
+        <div class="adbox-inner">
+          <div class="adbox-icon">
+            <div class="adbox-icon-box"></div>
+            <div class="adbox-icon-light"></div>
+          </div>
+          <div class="adbox-body">
+            <div class="adbox-tag">Новинка · Реклама на авто</div>
+            <div class="adbox-title">Установи рекламный короб</div>
+            <div class="adbox-rewards">
+              <span class="adbox-pill money">+ 2 000 руб. разово</span>
+              <span class="adbox-pill comm">Скидка на комиссию</span>
+            </div>
+          </div>
+          <div class="adbox-arrow">›</div>
+        </div>
+      </div>
+
+      <!-- PROMO BANNER -->
+      <div class="promo-banner" onclick="openPromo()">
+        <div class="promo-tag">Спецпредложение</div>
+        <h3>Таксопарк «ПрямойКурс»</h3>
+        <p>Подключись сейчас — работай 3 дня без комиссии. Стабильные заказы, своевременные выплаты.</p>
+        <div class="promo-meta">
+          <div class="promo-badge">0% комиссия 3 дня</div>
+          <div class="promo-timer">
+            <div class="timer-dot"></div>
+            <span id="timer-txt">Осталось: 23:41:07</span>
+          </div>
+        </div>
+        <div class="arrow">›</div>
+      </div>
+
+      <!-- CATEGORIES -->
+      <div class="section-title">Категории</div>
+      <div class="cats-wrap">
+        <div class="cats" id="cats">
+          <div class="cat-btn active" data-cat="all" onclick="setCategory('all', this)">
+            <div class="cat-icon">🏷</div>
+            <div class="cat-label">Все</div>
+          </div>
+          <div class="cat-btn" data-cat="azs" onclick="setCategory('azs', this)">
+            <div class="cat-icon">⛽</div>
+            <div class="cat-label">АЗС</div>
+          </div>
+          <div class="cat-btn" data-cat="insurance" onclick="setCategory('insurance', this)">
+            <div class="cat-icon">🛡</div>
+            <div class="cat-label">Страхование</div>
+          </div>
+          <div class="cat-btn" data-cat="food" onclick="setCategory('food', this)">
+            <div class="cat-icon">🍔</div>
+            <div class="cat-label">Еда</div>
+          </div>
+          <div class="cat-btn" data-cat="service" onclick="setCategory('service', this)">
+            <div class="cat-icon">🔧</div>
+            <div class="cat-label">Автосервис</div>
+          </div>
+          <div class="cat-btn" data-cat="tires" onclick="setCategory('tires', this)">
+            <div class="cat-icon">🔄</div>
+            <div class="cat-label">Шиномонтаж</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <!-- OFFERS LIST -->
+      <div class="offers-list" id="offers-list"></div>
+      <div style="height:8px"></div>
+    </div>
+
+    <!-- PAGE: SEARCH -->
+    <div class="page" id="page-search">
+      <div style="padding:30px 20px;">
+        <input id="search-input" type="text" placeholder="Поиск офферов..." oninput="doSearch(this.value)"
+          style="width:100%;padding:13px 16px;border-radius:12px;background:var(--bg2);border:1px solid rgba(255,255,255,0.1);color:var(--white);font-size:15px;font-family:var(--font);outline:none;">
+      </div>
+      <div class="offers-list" id="search-results"></div>
+    </div>
+
+    <!-- PAGE: PROFILE -->
+    <div class="page" id="page-profile">
+      <div class="profile-page">
+        <div class="profile-header">
+          <div class="profile-avatar">🚗</div>
+          <div class="profile-name" id="user-name">Водитель</div>
+          <div class="profile-status">● Верифицирован</div>
+        </div>
+        <div class="profile-stats">
+          <div class="stat-card"><div class="stat-val">12</div><div class="stat-label">Купонов использовано</div></div>
+          <div class="stat-card"><div class="stat-val">3 840 ₽</div><div class="stat-label">Сэкономлено</div></div>
+          <div class="stat-card"><div class="stat-val">5</div><div class="stat-label">Избранное</div></div>
+        </div>
+        <div class="menu-section">
+          <div class="menu-item">
+            <div class="menu-item-icon" style="background:rgba(245,166,35,0.15);">🎟</div>
+            <div class="menu-item-text">Мои купоны</div>
+            <div class="menu-item-arrow">›</div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-icon" style="background:rgba(34,197,94,0.15);">⭐</div>
+            <div class="menu-item-text">Избранные офферы</div>
+            <div class="menu-item-arrow">›</div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-icon" style="background:rgba(59,130,246,0.15);">📊</div>
+            <div class="menu-item-text">История экономии</div>
+            <div class="menu-item-arrow">›</div>
+          </div>
+        </div>
+        <div class="menu-section">
+          <div class="menu-item">
+            <div class="menu-item-icon" style="background:rgba(139,92,246,0.15);">🔔</div>
+            <div class="menu-item-text">Уведомления</div>
+            <div class="menu-item-arrow">›</div>
+          </div>
+          <div class="menu-item">
+            <div class="menu-item-icon" style="background:rgba(107,114,126,0.15);">❓</div>
+            <div class="menu-item-text">Помощь</div>
+            <div class="menu-item-arrow">›</div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:20px;font-size:12px;color:var(--gray2);">
+          DriverOffers v1.0 · Только для верифицированных водителей
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showPage('home', this)">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Главная</div>
+    </button>
+    <button class="nav-item" onclick="showPage('search', this)">
+      <div class="nav-icon">🔍</div>
+      <div class="nav-label">Поиск</div>
+    </button>
+    <button class="nav-item" onclick="showPage('profile', this)">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Профиль</div>
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- OFFER MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-logo" id="m-logo"></div>
+      <div>
+        <div class="modal-title" id="m-title"></div>
+        <div class="modal-cat" id="m-cat"></div>
+      </div>
+    </div>
+    <div class="modal-body" id="m-body"></div>
+  </div>
+</div>
+
+<!-- ADBOX MODAL -->
+<div class="modal-overlay" id="adbox-modal" onclick="closeAdbox(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="padding:0 20px 28px;">
+      <div style="text-align:center;margin-bottom:18px;">
+        <div style="width:72px;height:72px;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;flex-direction:column;gap:4px;">
+          <div style="width:40px;height:28px;border:2.5px solid var(--acc);border-radius:4px;position:relative;">
+            <div style="position:absolute;top:3px;left:3px;right:3px;height:6px;background:var(--acc);border-radius:2px;opacity:0.5;"></div>
+          </div>
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--acc);"></div>
+        </div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px;">Рекламный короб на авто</div>
+        <div style="font-size:13px;color:var(--gray);">Зарабатывай, просто катаясь</div>
+      </div>
+
+      <!-- Rewards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+        <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--green);">2 000 ₽</div>
+          <div style="font-size:11px;color:var(--gray);margin-top:4px;">Единовременно<br>за установку</div>
+        </div>
+        <div style="background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.3);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--acc);">-3%</div>
+          <div style="font-size:11px;color:var(--gray);margin-top:4px;">Скидка на комиссию<br>таксопарка</div>
+        </div>
+      </div>
+
+      <!-- How it works -->
+      <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:14px;">
+        <div style="font-size:12px;color:var(--gray);text-transform:uppercase;letter-spacing:0.4px;font-weight:600;margin-bottom:12px;">Как это работает</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:#000;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+            <div style="font-size:13px;color:#c5c8d4;line-height:1.4;">Оставь заявку — мастер приедет и установит короб на крышу бесплатно</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:#000;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+            <div style="font-size:13px;color:#c5c8d4;line-height:1.4;">Получи 2 000 руб. на счёт сразу после установки</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:flex-start;">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--acc);color:#000;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+            <div style="font-size:13px;color:#c5c8d4;line-height:1.4;">Работай как обычно — короб показывает рекламу, ты платишь комиссию на 3% меньше</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conditions -->
+      <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:16px;">
+        <div class="condition-item"><span class="condition-icon">✓</span>Установка и снятие — бесплатно, выезд мастера</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Скидка -3% на комиссию действует всё время с коробом</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Контракт от 3 месяцев, далее — по желанию</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Короб не мешает работе, не закрывает обзор</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Выплата 2 000 руб. в течение 3 рабочих дней</div>
+      </div>
+
+      <button class="get-btn" onclick="activateAdbox()">Оставить заявку на установку</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROMO MODAL -->
+<div class="modal-overlay" id="promo-modal" onclick="closePromo(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="padding:0 20px 28px;">
+      <div style="text-align:center;margin-bottom:18px;">
+        <div style="font-size:44px;margin-bottom:8px;">🚖</div>
+        <div style="font-size:20px;font-weight:700;margin-bottom:6px;">Таксопарк «ПрямойКурс»</div>
+        <div style="font-size:13px;color:var(--gray);">Партнёрская программа для водителей</div>
+      </div>
+      <div style="background:linear-gradient(135deg,#1a2a4a,#0d1b35);border-radius:14px;padding:18px;margin-bottom:16px;border:1px solid rgba(59,130,246,0.3);text-align:center;">
+        <div style="font-size:36px;font-weight:800;color:var(--acc);margin-bottom:4px;">0%</div>
+        <div style="font-size:14px;color:#93c5fd;font-weight:600;">комиссия первые 3 дня</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:6px;">Затем от 8% — одна из самых низких на рынке</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:16px;">
+        <div style="font-size:13px;color:var(--gray);text-transform:uppercase;letter-spacing:0.4px;font-weight:600;margin-bottom:10px;">Условия партнёрства</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Выплаты ежедневно на любую карту</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Стабильный поток заказов 24/7 в Москве и МО</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Поддержка водителя 24/7 в Telegram</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Работа с Яндекс Go, Ситимобил, Bolt одновременно</div>
+        <div class="condition-item"><span class="condition-icon">✓</span>Подключение самозанятых — без ИП</div>
+      </div>
+      <button class="get-btn" onclick="activatePromo()">Подключиться к таксопарку</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── TELEGRAM INIT ──
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('#0f1117');
+  tg.setBackgroundColor('#0f1117');
+  const user = tg.initDataUnsafe?.user;
+  if (user) {
+    document.getElementById('user-name').textContent = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+  }
+}
+
+// ── DATA ──
+const OFFERS = [
+  // АЗС
+  { id:1, cat:'azs', name:'Лукойл', logo:'ЛУК', logoColor:'#e4002b', logoBg:'rgba(228,0,43,0.15)',
+    discount:'5% кэшбэк', short:'Кэшбэк на все виды топлива по карте водителя',
+    full:'Кэшбэк 5% на все виды топлива при оплате картой водителя DriverOffers. Сумма кэшбэка зачисляется на счёт в течение 3 рабочих дней.',
+    conditions:['Действует на всех АЗС Лукойл по России','Максимальная сумма кэшбэка — 500 руб. в месяц','Необходимо показать QR-код кассиру'],
+    used:1840, expires:'31 августа 2026', hot:false },
+
+  { id:2, cat:'azs', name:'Газпромнефть', logo:'ГПН', logoColor:'#003087', logoBg:'rgba(0,48,135,0.15)',
+    discount:'4 руб./л', short:'Скидка 4 рубля с каждого литра топлива',
+    full:'Фиксированная скидка 4 рубля с литра на АИ-92, АИ-95 и дизель. Действует при предъявлении QR-кода приложения.',
+    conditions:['Скидка на АИ-92, АИ-95 и дизель','Без ограничений по объёму заправки','Действует в Московском регионе'],
+    used:2310, expires:'15 сентября 2026', hot:true },
+
+  { id:3, cat:'azs', name:'Роснефть', logo:'РОС', logoColor:'#ffd100', logoBg:'rgba(255,209,0,0.15)',
+    discount:'3% кэшбэк', short:'Кэшбэк на топливо + 2x баллы по карте',
+    full:'Кэшбэк 3% на топливо плюс двойные баллы по карте лояльности РН-Бонус для водителей, верифицированных в DriverOffers.',
+    conditions:['Необходима карта РН-Бонус','Действует на всех АЗС Роснефть','Кэшбэк и баллы суммируются'],
+    used:980, expires:'30 сентября 2026', hot:false },
+
+  // СТРАХОВАНИЕ
+  { id:4, cat:'insurance', name:'Тинькофф Страхование', logo:'ТИН', logoColor:'#ffdd2d', logoBg:'rgba(255,221,45,0.15)',
+    discount:'15% скидка', short:'Скидка на ОСАГО для профессиональных водителей',
+    full:'Специальная скидка 15% на полис ОСАГО при оформлении через DriverOffers. Расчёт и оформление онлайн за 5 минут.',
+    conditions:['Только для водителей со стажем от 2 лет','Скидка применяется к базовому тарифу','Полис отправляется на email сразу после оплаты'],
+    used:654, expires:'31 декабря 2026', hot:false },
+
+  { id:5, cat:'insurance', name:'Ингосстрах', logo:'ИНГ', logoColor:'#0057a8', logoBg:'rgba(0,87,168,0.15)',
+    discount:'10% + рассрочка', short:'КАСКО в рассрочку без переплат для таксистов',
+    full:'КАСКО с франшизой от 10 000 руб. со скидкой 10% и рассрочкой на 6 месяцев без переплаты. Специальные условия для водителей такси.',
+    conditions:['Автомобиль не старше 10 лет','Необходима диагностическая карта','Рассрочка без банка — от страховщика'],
+    used:312, expires:'31 октября 2026', hot:false },
+
+  { id:6, cat:'insurance', name:'АльфаСтрахование', logo:'АЛФ', logoColor:'#ef3124', logoBg:'rgba(239,49,36,0.15)',
+    discount:'Бесплатный юрист', short:'ОСАГО + бесплатная юрпомощь при ДТП',
+    full:'При оформлении ОСАГО через DriverOffers — бесплатная юридическая помощь при ДТП в течение 1 года. Юрист выезжает на место.',
+    conditions:['Услуга включена в базовый полис','Выезд юриста в Москве и СПб','В регионах — консультация по телефону 24/7'],
+    used:891, expires:'31 августа 2026', hot:true },
+
+  // ЕДА
+  { id:7, cat:'food', name:'Вкусно — и точка', logo:'ВТ', logoColor:'#da291c', logoBg:'rgba(218,41,28,0.15)',
+    discount:'20% скидка', short:'Скидка на всё меню с 6:00 до 11:00',
+    full:'Скидка 20% на всё меню в утренние часы с 6:00 до 11:00 при предъявлении QR-кода из приложения. Идеально для завтрака между заказами.',
+    conditions:['Действует с 6:00 до 11:00','Во всех ресторанах сети','Скидка не суммируется с другими акциями'],
+    used:3200, expires:'31 августа 2026', hot:true },
+
+  { id:8, cat:'food', name:'Surf Coffee', logo:'SC', logoColor:'#00b4d8', logoBg:'rgba(0,180,216,0.15)',
+    discount:'2-й кофе в подарок', short:'Берёшь 1 кофе — второй бесплатно для водителей',
+    full:'Специальный оффер для водителей: при заказе любого кофе второй такой же напиток в подарок. По QR-коду из приложения.',
+    conditions:['Один раз в день на одного водителя','Второй напиток — тот же вид','Участвуют все кофейни Surf Coffee'],
+    used:1560, expires:'30 сентября 2026', hot:false },
+
+  { id:9, cat:'food', name:'KFC', logo:'KFC', logoColor:'#e4002b', logoBg:'rgba(228,0,43,0.15)',
+    discount:'15% скидка', short:'Скидка на весь заказ при показе QR',
+    full:'Скидка 15% на весь заказ в KFC при предъявлении QR-кода DriverOffers. Действует на все позиции меню, включая Баскеты и Биг-Твистеры.',
+    conditions:['Скидка на весь чек','До 2 раз в день на одного водителя','Во всех ресторанах России'],
+    used:2870, expires:'31 октября 2026', hot:false },
+
+  { id:10, cat:'food', name:'Burger King', logo:'BK', logoColor:'#ff8732', logoBg:'rgba(255,135,50,0.15)',
+    discount:'Воппер за 99 ₽', short:'Культовый Воппер по специальной цене',
+    full:'Воппер за 99 рублей при покупке любого напитка по обычной цене. Только по QR-коду DriverOffers.',
+    conditions:['Необходима покупка напитка','Один раз в день','Во всех ресторанах BK в России'],
+    used:4100, expires:'15 августа 2026', hot:true },
+
+  // АВТОСЕРВИС
+  { id:11, cat:'service', name:'FIT SERVICE', logo:'FIT', logoColor:'#ff6b00', logoBg:'rgba(255,107,0,0.15)',
+    discount:'20% на ТО', short:'Скидка на техническое обслуживание автомобиля',
+    full:'Скидка 20% на полное техническое обслуживание любого автомобиля. Включает замену масла, фильтров, диагностику всех систем.',
+    conditions:['Необходима предварительная запись','Действует во всех 400+ сервисах сети','Работы на оригинальных или сертифицированных запчастях'],
+    used:720, expires:'30 сентября 2026', hot:false },
+
+  { id:12, cat:'service', name:'Вилгуд', logo:'ВГД', logoColor:'#7c3aed', logoBg:'rgba(124,58,237,0.15)',
+    discount:'15% + гарантия', short:'Скидка на ремонт + гарантия 1 год на работы',
+    full:'Скидка 15% на все виды ремонта плюс увеличенная гарантия 1 год на выполненные работы. Вилгуд — сеть умных автосервисов с видеонаблюдением.',
+    conditions:['Онлайн-запись через приложение','Видеотрансляция ремонта для клиента','Фиксированные цены без скрытых доплат'],
+    used:430, expires:'31 декабря 2026', hot:false },
+
+  { id:13, cat:'service', name:'ГАЗ-Сервис', logo:'ГАЗ', logoColor:'#1d4ed8', logoBg:'rgba(29,78,216,0.15)',
+    discount:'Бесплатная диагностика', short:'Полная компьютерная диагностика авто бесплатно',
+    full:'Бесплатная полная компьютерная диагностика всех систем автомобиля: двигатель, АКПП, тормоза, подвеска. Стоимость услуги — 2 500 руб.',
+    conditions:['Только при записи через DriverOffers','Диагностика без ремонта — тоже бесплатно','Отчёт о состоянии авто выдаётся на руки'],
+    used:1890, expires:'31 августа 2026', hot:true },
+
+  // ШИНОМОНТАЖ
+  { id:14, cat:'tires', name:'4 Колеса', logo:'4К', logoColor:'#059669', logoBg:'rgba(5,150,105,0.15)',
+    discount:'25% скидка', short:'Скидка на сезонную замену шин с балансировкой',
+    full:'Скидка 25% на сезонную замену шин с балансировкой для любого автомобиля. Быстрая запись онлайн, ожидание не более 40 минут.',
+    conditions:['Включает балансировку всех 4 колёс','Запись онлайн за 1 час до визита','Хранение шин в сервисе — 500 руб./сезон'],
+    used:2100, expires:'1 октября 2026', hot:false },
+
+  { id:15, cat:'tires', name:'Колесо', logo:'КЛС', logoColor:'#0891b2', logoBg:'rgba(8,145,178,0.15)',
+    discount:'Ремонт от 150 ₽', short:'Ремонт прокола — минимальная цена для водителей',
+    full:'Ремонт прокола шины от 150 рублей по тарифу для профессиональных водителей. Обычная цена — 400-600 рублей. Без очереди по QR-коду.',
+    conditions:['Ремонт прокола любой сложности','Без очереди при предъявлении QR','Сеть 200+ точек в Москве'],
+    used:3450, expires:'31 декабря 2026', hot:false },
+
+  { id:16, cat:'tires', name:'Шинный Центр', logo:'ШЦ', logoColor:'#dc2626', logoBg:'rgba(220,38,38,0.15)',
+    discount:'3 по цене 2', short:'Купи 3 шины — 4-я в подарок при замене',
+    full:'При покупке и установке 3 шин любого бренда — 4-я шина аналогичной модели бесплатно. Акция действует на все шины в наличии.',
+    conditions:['Шины должны быть одной марки и модели','Акция на все бренды в наличии','Установка и балансировка по стандартному тарифу'],
+    used:580, expires:'31 октября 2026', hot:true },
+];
+
+const CAT_LABELS = { all:'Все офферы', azs:'АЗС', insurance:'Страхование', food:'Еда', service:'Автосервис', tires:'Шиномонтаж' };
+let currentCat = 'all';
+
+function renderOffers(list, containerId) {
+  const el = document.getElementById(containerId);
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Ничего не найдено</div><div class="empty-sub">Попробуйте другой запрос</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(o => `
+    <div class="offer-card" onclick="openOffer(${o.id})">
+      ${o.hot ? '<div class="offer-hot">Хит</div>' : ''}
+      <div class="offer-inner">
+        <div class="offer-logo" style="background:${o.logoBg};color:${o.logoColor};">${o.logo}</div>
+        <div class="offer-body">
+          <div class="offer-name">${o.name}</div>
+          <div class="offer-desc">${o.short}</div>
+          <div class="offer-footer">
+            <span class="offer-discount">${o.discount}</span>
+            <span class="offer-used">${o.used.toLocaleString('ru')} использовали</span>
+          </div>
+        </div>
+        <div class="offer-arrow">›</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setCategory(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = cat === 'all' ? OFFERS : OFFERS.filter(o => o.cat === cat);
+  renderOffers(filtered, 'offers-list');
+}
+
+function openOffer(id) {
+  const o = OFFERS.find(x => x.id === id);
+  if (!o) return;
+  document.getElementById('m-logo').innerHTML = o.logo;
+  document.getElementById('m-logo').style.cssText = `background:${o.logoBg};color:${o.logoColor};width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;`;
+  document.getElementById('m-title').textContent = o.name;
+  document.getElementById('m-cat').textContent = CAT_LABELS[o.cat] + ' · ' + o.used.toLocaleString('ru') + ' использовали';
+  document.getElementById('m-body').innerHTML = `
+    <div class="modal-discount-big">
+      <div>
+        <div class="modal-discount-val">${o.discount}</div>
+        <div class="modal-discount-label">Ваша скидка</div>
+      </div>
+      <div class="modal-discount-expires">До ${o.expires}</div>
+    </div>
+    <div class="modal-desc-title">Об оффере</div>
+    <div class="modal-desc-text">${o.full}</div>
+    <div class="modal-desc-title">Условия</div>
+    <div class="conditions">
+      ${o.conditions.map(c => `<div class="condition-item"><span class="condition-icon">✓</span>${c}</div>`).join('')}
+    </div>
+    <button class="get-btn" onclick="getCoupon(${o.id})">Получить купон</button>
+    <div style="height:8px"></div>
+  `;
+  document.getElementById('modal').classList.add('open');
+  if (tg) tg.HapticFeedback?.impactOccurred('light');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+function getCoupon(id) {
+  const o = OFFERS.find(x => x.id === id);
+  const code = 'DRV' + Math.random().toString(36).slice(2,7).toUpperCase();
+  document.getElementById('m-body').innerHTML = `
+    <div class="coupon-wrap">
+      <div class="coupon-icon">🎟</div>
+      <div class="coupon-title">Купон получен!</div>
+      <div class="coupon-sub">Покажите код кассиру или введите при оплате</div>
+      <div class="coupon-code" onclick="copyCode('${code}')">
+        <div class="coupon-code-val">${code}</div>
+        <div class="coupon-copy-hint">Нажмите, чтобы скопировать</div>
+      </div>
+      <div class="coupon-steps">
+        <div class="coupon-step"><div class="step-num">1</div>Скопируйте или запомните код выше</div>
+        <div class="coupon-step"><div class="step-num">2</div>Назовите код кассиру при оплате</div>
+        <div class="coupon-step"><div class="step-num">3</div>Получите скидку: ${o.discount}</div>
+      </div>
+    </div>
+  `;
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+}
+
+function copyCode(code) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => showToast('Код скопирован: ' + code));
+  } else {
+    showToast('Код: ' + code);
+  }
+  if (tg) tg.HapticFeedback?.impactOccurred('medium');
+}
+
+// ── ADBOX ──
+function openAdbox() {
+  document.getElementById('adbox-modal').classList.add('open');
+  if (tg) tg.HapticFeedback?.impactOccurred('light');
+}
+function closeAdbox(e) {
+  if (e.target === document.getElementById('adbox-modal'))
+    document.getElementById('adbox-modal').classList.remove('open');
+}
+function activateAdbox() {
+  document.getElementById('adbox-modal').classList.remove('open');
+  showToast('Заявка принята! Мастер свяжется в течение часа');
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+}
+
+// ── PROMO ──
+function openPromo() {
+  document.getElementById('promo-modal').classList.add('open');
+  if (tg) tg.HapticFeedback?.impactOccurred('light');
+}
+function closePromo(e) {
+  if (e.target === document.getElementById('promo-modal')) {
+    document.getElementById('promo-modal').classList.remove('open');
+  }
+}
+function activatePromo() {
+  document.getElementById('promo-modal').classList.remove('open');
+  showToast('Заявка отправлена! Менеджер свяжется с вами');
+  if (tg) {
+    tg.HapticFeedback?.notificationOccurred('success');
+  }
+}
+
+// ── NAVIGATION ──
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'search') setTimeout(() => document.getElementById('search-input').focus(), 100);
+}
+
+// ── SEARCH ──
+function doSearch(q) {
+  q = q.trim().toLowerCase();
+  if (!q) { document.getElementById('search-results').innerHTML = ''; return; }
+  const res = OFFERS.filter(o =>
+    o.name.toLowerCase().includes(q) ||
+    o.short.toLowerCase().includes(q) ||
+    o.discount.toLowerCase().includes(q) ||
+    CAT_LABELS[o.cat].toLowerCase().includes(q)
+  );
+  renderOffers(res, 'search-results');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── TIMER ──
+function startTimer() {
+  let total = 23*3600 + 41*60 + 7;
+  setInterval(() => {
+    if (total <= 0) return;
+    total--;
+    const h = Math.floor(total/3600);
+    const m = Math.floor((total%3600)/60);
+    const s = total%60;
+    const el = document.getElementById('timer-txt');
+    if (el) el.textContent = `Осталось: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }, 1000);
+}
+
+// ── INIT ──
+renderOffers(OFFERS, 'offers-list');
+startTimer();
+</script>
+</body>
+</html>
