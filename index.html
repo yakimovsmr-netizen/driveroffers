@@ -415,6 +415,26 @@
   .stat-card { background: var(--bg2); border-radius: 12px; padding: 14px 10px; text-align: center; border: 1px solid rgba(255,255,255,0.07); }
   .stat-val { font-size: 20px; font-weight: 700; color: var(--acc); }
   .stat-label { font-size: 11px; color: var(--gray); margin-top: 3px; }
+  /* ── LEVEL PROGRESS ── */
+  .level-card { background: var(--bg2); border-radius: var(--card-r); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 16px; margin-bottom: 14px; }
+  .level-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .level-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .level-name svg { width: 16px; height: 16px; stroke: var(--acc); }
+  .level-next { font-size: 11px; color: var(--gray); }
+  .level-bar-track { height: 8px; border-radius: 4px; background: var(--bg3); overflow: hidden; }
+  .level-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--acc), var(--acc2)); transition: width 0.4s ease; }
+
+  /* ── BADGES ── */
+  .badges-title { font-size: 13px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; margin: 4px 0 10px; }
+  .badges-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .badge-item { background: var(--bg2); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: 12px; padding: 10px 4px; text-align: center; }
+  .badge-item.locked { opacity: 0.35; }
+  .badge-icon-wrap { width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; background: rgba(245,166,35,0.15); color: var(--acc); }
+  .badge-item.locked .badge-icon-wrap { background: var(--bg3); color: var(--gray2); }
+  .badge-icon-wrap svg { width: 17px; height: 17px; stroke: currentColor; }
+  .badge-label { font-size: 9.5px; color: var(--gray); line-height: 1.25; }
+  .badge-item:not(.locked) .badge-label { color: var(--white); font-weight: 600; }
+
   .menu-section { background: var(--bg2); border-radius: var(--card-r); overflow: hidden; border: 1px solid rgba(255,255,255,0.07); margin-bottom: 10px; }
   .menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
   .menu-item:last-child { border-bottom: none; }
@@ -559,6 +579,18 @@
           <div class="stat-card"><div class="stat-val">3 840 ₽</div><div class="stat-label">Сэкономлено</div></div>
           <div class="stat-card"><div class="stat-val" style="color:var(--brand);">5</div><div class="stat-label">Избранное</div></div>
         </div>
+
+        <div class="level-card">
+          <div class="level-top">
+            <div class="level-name"><span id="level-icon" style="display:flex;"></span><span id="level-title">Опытный водитель</span></div>
+            <div class="level-next" id="level-next">3 купона до Профи</div>
+          </div>
+          <div class="level-bar-track"><div class="level-bar-fill" id="level-bar" style="width:0%;"></div></div>
+        </div>
+
+        <div class="badges-title">Достижения</div>
+        <div class="badges-grid" id="badges-grid"></div>
+
         <div class="menu-section">
           <div class="menu-item">
             <div class="menu-item-icon" style="background:rgba(245,166,35,0.15);color:#F5A623;" id="menu-icon-tickets"></div>
@@ -1257,6 +1289,50 @@ function initTheme() {
   }
 }
 
+// ── GAMIFICATION ──
+const USER_STATS = { couponsUsed: 12, savedRub: 3840, favorites: 5, categoriesUsed: 4 };
+
+const LEVELS = [
+  { name:'Новичок',           min:0,  max:5  },
+  { name:'Опытный водитель',  min:5,  max:15 },
+  { name:'Профи',             min:15, max:30 },
+  { name:'Мастер экономии',   min:30, max:30 },
+];
+
+function renderLevel() {
+  const n = USER_STATS.couponsUsed;
+  let level = LEVELS[0], idx = 0;
+  for (let i = 0; i < LEVELS.length; i++) { if (n >= LEVELS[i].min) { level = LEVELS[i]; idx = i; } }
+  const isMax = idx === LEVELS.length - 1;
+  const pct = isMax ? 100 : Math.min(100, Math.round(((n - level.min) / (level.max - level.min)) * 100));
+
+  document.getElementById('level-icon').innerHTML = ICONS.star;
+  document.getElementById('level-title').textContent = level.name;
+  document.getElementById('level-bar').style.width = pct + '%';
+  document.getElementById('level-next').textContent = isMax
+    ? 'Максимальный уровень'
+    : `${level.max - n} купон${level.max - n === 1 ? '' : (level.max - n < 5 ? 'а' : 'ов')} до «${LEVELS[idx+1].name}»`;
+}
+
+const BADGES = [
+  { icon: ICONS.ticket,     label: 'Первый купон',    earned: s => s.couponsUsed >= 1 },
+  { icon: ICONS.fuel,       label: 'Заправился',       earned: s => s.couponsUsed >= 3 },
+  { icon: ICONS.star,       label: '10 купонов',       earned: s => s.couponsUsed >= 10 },
+  { icon: ICONS.percent,    label: 'Эконом 3000+',     earned: s => s.savedRub >= 3000 },
+  { icon: ICONS.shield,     label: 'Застрахован',      earned: s => s.couponsUsed >= 5 },
+  { icon: ICONS.package,    label: 'Коллекционер',     earned: s => s.categoriesUsed >= 4 },
+  { icon: ICONS.megaphone,  label: 'Амбассадор',       earned: s => s.favorites >= 5 },
+  { icon: ICONS.helpCircle, label: 'Мастер экономии',  earned: s => s.couponsUsed >= 30 },
+];
+
+function renderBadges() {
+  const el = document.getElementById('badges-grid');
+  el.innerHTML = BADGES.map(b => {
+    const on = b.earned(USER_STATS);
+    return `<div class="badge-item ${on ? '' : 'locked'}"><div class="badge-icon-wrap">${b.icon}</div><div class="badge-label">${b.label}</div></div>`;
+  }).join('');
+}
+
 // ── STATIC ICONS ──
 function renderStaticIcons() {
   document.getElementById('nav-icon-home').innerHTML = ICONS.home;
@@ -1331,6 +1407,8 @@ initTheme();
 renderStaticIcons();
 renderCategories();
 renderNews();
+renderLevel();
+renderBadges();
 renderOffers(OFFERS, 'offers-list');
 startTimer();
 </script>
