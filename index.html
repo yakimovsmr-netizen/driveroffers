@@ -227,6 +227,59 @@
   }
   .offer-card { position: relative; }
 
+  /* ── FEATURED OFFER CARD ── */
+  .offer-card-featured {
+    padding: 18px;
+    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+    border: 1px solid rgba(245,166,35,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .offer-card-featured::before {
+    content: '';
+    position: absolute; top: -50px; right: -50px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(245,166,35,0.12) 0%, transparent 70%);
+  }
+  .offer-featured-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: linear-gradient(135deg, var(--acc), var(--acc2)); color: #000;
+    font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+    margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .offer-featured-badge svg { width: 10px; height: 10px; stroke: #000; }
+  .offer-featured-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .offer-logo-lg {
+    width: 60px; height: 60px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; flex-shrink: 0;
+  }
+  .offer-featured-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+  .offer-featured-cat { font-size: 11px; color: var(--gray); }
+  .offer-featured-desc { font-size: 13px; color: var(--gray); line-height: 1.45; margin-bottom: 14px; }
+  .offer-featured-footer { display: flex; align-items: center; justify-content: space-between; }
+  .offer-discount-lg {
+    font-size: 20px; font-weight: 800; color: var(--acc);
+  }
+
+  /* ── COMPACT OFFER ROW ── */
+  .offer-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px;
+    background: var(--bg2); border: 1px solid var(--border); box-shadow: var(--shadow);
+    border-radius: 12px; cursor: pointer;
+  }
+  .offer-row:active { transform: scale(0.98); }
+  .offer-row-logo {
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .offer-row-body { flex: 1; min-width: 0; }
+  .offer-row-name { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+  .offer-row-discount { font-size: 11px; font-weight: 700; color: var(--acc); flex-shrink: 0; }
+  .offer-row-desc { font-size: 11.5px; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
   /* ── PARTNER CTA ── */
   .partner-cta {
     margin: 4px 14px 0;
@@ -974,29 +1027,52 @@ function renderCategories() {
   `).join('');
 }
 
+function featuredCardHtml(o) {
+  const badge = o.sponsored ? `${ICONS.star}Спонсировано` : (o.hot ? `${ICONS.star}Хит` : '');
+  return `
+    <div class="offer-card offer-card-featured" onclick="openOffer(${o.id})">
+      ${badge ? `<div class="offer-featured-badge">${badge}</div>` : ''}
+      <div class="offer-featured-top">
+        <div class="offer-logo-lg" style="background:${o.logoBg};color:${o.logoColor};">${o.logo}</div>
+        <div>
+          <div class="offer-featured-name">${o.name}</div>
+          <div class="offer-featured-cat">${CAT_LABELS[o.cat] || ''}</div>
+        </div>
+      </div>
+      <div class="offer-featured-desc">${o.short}</div>
+      <div class="offer-featured-footer">
+        <span class="offer-discount-lg">${o.discount}</span>
+        <span class="offer-used">${o.used.toLocaleString('ru')} использовали</span>
+      </div>
+    </div>
+  `;
+}
+
+function compactRowHtml(o) {
+  return `
+    <div class="offer-row" onclick="openOffer(${o.id})">
+      <div class="offer-row-logo" style="background:${o.logoBg};color:${o.logoColor};">${o.logo}</div>
+      <div class="offer-row-body">
+        <div class="offer-row-name">${o.name}<span class="offer-row-discount">${o.discount}</span></div>
+        <div class="offer-row-desc">${o.short}</div>
+      </div>
+      <div class="offer-arrow">›</div>
+    </div>
+  `;
+}
+
 function renderOffers(list, containerId) {
   const el = document.getElementById(containerId);
   if (!list.length) {
     el.innerHTML = `<div class="empty"><div class="empty-icon" style="display:flex;justify-content:center;">${ICONS.search}</div><div class="empty-text">Ничего не найдено</div><div class="empty-sub">Попробуйте другой запрос</div></div>`;
     return;
   }
-  el.innerHTML = list.map(o => `
-    <div class="offer-card" onclick="openOffer(${o.id})">
-      ${o.sponsored ? `<div class="offer-sponsored">${ICONS.star}Спонсировано</div>` : (o.hot ? '<div class="offer-hot">Хит</div>' : '')}
-      <div class="offer-inner">
-        <div class="offer-logo" style="background:${o.logoBg};color:${o.logoColor};">${o.logo}</div>
-        <div class="offer-body">
-          <div class="offer-name">${o.name}</div>
-          <div class="offer-desc">${o.short}</div>
-          <div class="offer-footer">
-            <span class="offer-discount">${o.discount}</span>
-            <span class="offer-used">${o.used.toLocaleString('ru')} использовали</span>
-          </div>
-        </div>
-        <div class="offer-arrow">›</div>
-      </div>
-    </div>
-  `).join('');
+  const sorted = [...list].sort((a, b) => {
+    const score = x => (x.sponsored ? 2 : 0) + (x.hot ? 1 : 0);
+    return score(b) - score(a) || b.used - a.used;
+  });
+  const [featured, ...rest] = sorted;
+  el.innerHTML = featuredCardHtml(featured) + rest.map(compactRowHtml).join('');
 }
 
 function setCategory(cat, btn) {
