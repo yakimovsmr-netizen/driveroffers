@@ -467,9 +467,56 @@
 
   .divider { height: 1px; background: rgba(255,255,255,0.05); margin: 0 14px; }
   .search-field:focus { border-color: var(--brand) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+
+  /* ── ONBOARDING ── */
+  .onboard-overlay {
+    position: fixed; inset: 0; background: var(--bg); z-index: 500;
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px 28px; text-align: center;
+  }
+  .onboard-overlay.open { display: flex; }
+  .onboard-step { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 340px; }
+  .onboard-step.active { display: flex; }
+  .onboard-logo { width: 84px; height: 84px; border-radius: 20px; object-fit: cover; margin-bottom: 22px; }
+  .onboard-title { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+  .onboard-desc { font-size: 14px; color: var(--gray); line-height: 1.5; margin-bottom: 28px; }
+  .onboard-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 24px; }
+  .onboard-chip {
+    display: flex; align-items: center; gap: 8px; padding: 12px;
+    background: var(--bg2); border: 1.5px solid var(--border); border-radius: 12px;
+    cursor: pointer; text-align: left;
+  }
+  .onboard-chip.selected { border-color: var(--brand); background: rgba(59,130,246,0.1); }
+  .onboard-chip-icon { width: 22px; height: 22px; flex-shrink: 0; color: var(--gray); }
+  .onboard-chip.selected .onboard-chip-icon { color: var(--brand); }
+  .onboard-chip-icon svg { width: 20px; height: 20px; stroke: currentColor; }
+  .onboard-chip-label { font-size: 12.5px; font-weight: 600; }
+  .onboard-skip { background: none; border: none; color: var(--gray); font-size: 13px; margin-top: 14px; cursor: pointer; }
+  .onboard-dots { display: flex; gap: 6px; margin-top: 24px; }
+  .onboard-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bg3); }
+  .onboard-dot.active { background: var(--brand); width: 18px; border-radius: 3px; transition: width 0.2s; }
 </style>
 </head>
 <body>
+
+<!-- ONBOARDING -->
+<div class="onboard-overlay" id="onboard-overlay">
+  <div class="onboard-step active" id="onboard-step-1">
+    <img src="icon-192.png" alt="Bono" class="onboard-logo">
+    <div class="onboard-title">Bono</div>
+    <div class="onboard-desc">Все офферы для водителей и курьеров в одном месте: топливо, страхование, еда, автосервис, жильё и документы.</div>
+    <button class="get-btn" onclick="onboardNext()">Начать</button>
+    <div class="onboard-dots"><div class="onboard-dot active"></div><div class="onboard-dot"></div></div>
+  </div>
+  <div class="onboard-step" id="onboard-step-2">
+    <div class="onboard-title">Что вам интересно?</div>
+    <div class="onboard-desc">Выберите категории — покажем их в первую очередь на главном экране</div>
+    <div class="onboard-cats" id="onboard-cats"></div>
+    <button class="get-btn" onclick="finishOnboarding()">Готово</button>
+    <button class="onboard-skip" onclick="finishOnboarding()">Пропустить</button>
+  </div>
+</div>
+
 <div id="app">
 
   <!-- TOP BAR -->
@@ -1289,6 +1336,58 @@ function initTheme() {
   }
 }
 
+// ── ONBOARDING ──
+let onboardSelected = new Set();
+
+function renderOnboardCats() {
+  const cats = CATEGORIES.filter(c => c.id !== 'all' && c.id !== 'best');
+  document.getElementById('onboard-cats').innerHTML = cats.map(c => `
+    <div class="onboard-chip" data-id="${c.id}" onclick="toggleOnboardCat('${c.id}', this)">
+      <div class="onboard-chip-icon">${c.icon}</div>
+      <div class="onboard-chip-label">${c.label}</div>
+    </div>
+  `).join('');
+}
+
+function toggleOnboardCat(id, el) {
+  if (onboardSelected.has(id)) { onboardSelected.delete(id); el.classList.remove('selected'); }
+  else { onboardSelected.add(id); el.classList.add('selected'); }
+  if (tg) tg.HapticFeedback?.selectionChanged();
+}
+
+function onboardNext() {
+  document.getElementById('onboard-step-1').classList.remove('active');
+  document.getElementById('onboard-step-2').classList.add('active');
+  document.querySelectorAll('.onboard-dot').forEach((d, i) => d.classList.toggle('active', i === 1));
+  renderOnboardCats();
+}
+
+function finishOnboarding() {
+  localStorage.setItem('onboarded', '1');
+  localStorage.setItem('preferredCats', JSON.stringify([...onboardSelected]));
+  document.getElementById('onboard-overlay').classList.remove('open');
+  applyPreferredCats();
+  if (tg) tg.HapticFeedback?.notificationOccurred('success');
+}
+
+function applyPreferredCats() {
+  const prefs = JSON.parse(localStorage.getItem('preferredCats') || '[]');
+  if (!prefs.length) return;
+  const pinned = ['all', 'best'];
+  const pinnedCats = CATEGORIES.filter(c => pinned.includes(c.id));
+  const preferred = CATEGORIES.filter(c => prefs.includes(c.id) && !pinned.includes(c.id));
+  const rest = CATEGORIES.filter(c => !prefs.includes(c.id) && !pinned.includes(c.id));
+  CATEGORIES.length = 0;
+  CATEGORIES.push(...pinnedCats, ...preferred, ...rest);
+  renderCategories();
+}
+
+function initOnboarding() {
+  if (!localStorage.getItem('onboarded')) {
+    document.getElementById('onboard-overlay').classList.add('open');
+  }
+}
+
 // ── GAMIFICATION ──
 const USER_STATS = { couponsUsed: 12, savedRub: 3840, favorites: 5, categoriesUsed: 4 };
 
@@ -1406,10 +1505,12 @@ function submitPartner() {
 initTheme();
 renderStaticIcons();
 renderCategories();
+applyPreferredCats();
 renderNews();
 renderLevel();
 renderBadges();
 renderOffers(OFFERS, 'offers-list');
+initOnboarding();
 startTimer();
 </script>
 </body>
