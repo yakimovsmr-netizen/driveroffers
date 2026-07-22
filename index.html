@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bono</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon-180.png">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
@@ -51,6 +56,8 @@
     border-bottom: 1px solid rgba(255,255,255,0.06);
     backdrop-filter: blur(10px);
   }
+  .logo-wrap { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; }
   .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
   .logo span { color: var(--acc); }
   .topbar-right { display: flex; align-items: center; gap: 10px; }
@@ -393,7 +400,10 @@
 
   <!-- TOP BAR -->
   <div class="topbar">
-    <div class="logo">Bo<span>no</span></div>
+    <div class="logo-wrap">
+      <img src="icon-64.png" alt="Bono" class="logo-icon">
+      <div class="logo">Bo<span>no</span></div>
+    </div>
     <div class="topbar-right">
       <div class="badge-verified">✓ Водитель</div>
       <button class="icon-btn theme-btn" id="theme-toggle" onclick="toggleTheme()" title="Сменить тему">🌙</button>
