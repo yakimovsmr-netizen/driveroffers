@@ -873,7 +873,7 @@ function logoTextColor(hex) {
 function logoMarkup(o) {
   const fallback = `<span class="logo-fallback">${o.logo}</span>`;
   if (!o.domain) return fallback;
-  return `${fallback}<img class="logo-img" src="https://logo.clearbit.com/${o.domain}?size=128" loading="lazy" onerror="this.style.display='none'">`;
+  return `${fallback}<img class="logo-img" src="https://www.google.com/s2/favicons?domain=${o.domain}&sz=128" loading="lazy" onerror="this.style.display='none'" onload="if(this.naturalWidth<32)this.style.display='none'">`;
 }
 
 function svg(inner, extra='') {
