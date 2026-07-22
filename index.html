@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bono</title>
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
@@ -56,7 +54,6 @@
     backdrop-filter: blur(10px);
   }
   .logo-wrap { display: flex; align-items: center; gap: 8px; }
-  .logo-icon { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; }
   .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
   .logo span { color: var(--acc); }
   .topbar-right { display: flex; align-items: center; gap: 10px; }
@@ -205,9 +202,10 @@
   .offer-card:active { transform: scale(0.98); border-color: rgba(245,166,35,0.3); }
   .offer-inner { display: flex; align-items: center; gap: 12px; padding: 14px; }
   .offer-logo {
-    width: 52px; height: 52px; border-radius: 12px;
+    width: 52px; height: 52px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 24px; flex-shrink: 0; font-weight: 700; font-size: 15px;
+    flex-shrink: 0; font-weight: 800; font-size: 14px; letter-spacing: 0.2px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
   }
   .offer-body { flex: 1; min-width: 0; }
   .offer-name { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
@@ -250,9 +248,10 @@
   .offer-featured-badge svg { width: 10px; height: 10px; stroke: #000; }
   .offer-featured-top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
   .offer-logo-lg {
-    width: 60px; height: 60px; border-radius: 14px;
+    width: 60px; height: 60px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 700; flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    font-size: 15px; font-weight: 800; flex-shrink: 0;
   }
   .offer-featured-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
   .offer-featured-cat { font-size: 11px; color: var(--gray); }
@@ -271,9 +270,10 @@
   }
   .offer-row:active { transform: scale(0.98); }
   .offer-row-logo {
-    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    font-size: 11px; font-weight: 800;
   }
   .offer-row-body { flex: 1; min-width: 0; }
   .offer-row-name { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
@@ -362,7 +362,7 @@
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .modal-handle { width: 36px; height: 4px; background: var(--bg3); border-radius: 2px; margin: 12px auto 16px; }
   .modal-header { padding: 0 20px 16px; display: flex; gap: 14px; align-items: center; }
-  .modal-logo { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+  .modal-logo { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; box-shadow: 0 3px 8px rgba(0,0,0,0.2); }
   .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
   .modal-cat { font-size: 12px; color: var(--gray); }
   .modal-body { padding: 0 20px; }
@@ -477,7 +477,6 @@
   .onboard-overlay.open { display: flex; }
   .onboard-step { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 340px; }
   .onboard-step.active { display: flex; }
-  .onboard-logo { width: 84px; height: 84px; border-radius: 20px; object-fit: cover; margin-bottom: 22px; }
   .onboard-title { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
   .onboard-desc { font-size: 14px; color: var(--gray); line-height: 1.5; margin-bottom: 28px; }
   .onboard-cats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-bottom: 24px; }
@@ -502,7 +501,6 @@
 <!-- ONBOARDING -->
 <div class="onboard-overlay" id="onboard-overlay">
   <div class="onboard-step active" id="onboard-step-1">
-    <img src="icon-192.png" alt="Bono" class="onboard-logo">
     <div class="onboard-title">Bono</div>
     <div class="onboard-desc">Все офферы для водителей и курьеров в одном месте: топливо, страхование, еда, автосервис, жильё и документы.</div>
     <button class="get-btn" onclick="onboardNext()">Начать</button>
@@ -522,7 +520,6 @@
   <!-- TOP BAR -->
   <div class="topbar">
     <div class="logo-wrap">
-      <img src="icon-64.png" alt="Bono" class="logo-icon">
       <div class="logo">Bo<span>no</span></div>
     </div>
     <div class="topbar-right">
@@ -856,6 +853,13 @@
 
 <script>
 // ── ICONS (Lucide-style line icons) ──
+function logoTextColor(hex) {
+  const c = hex.replace('#', '');
+  const r = parseInt(c.substring(0,2), 16), g = parseInt(c.substring(2,4), 16), b = parseInt(c.substring(4,6), 16);
+  const luminance = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return luminance > 0.6 ? '#151515' : '#ffffff';
+}
+
 function svg(inner, extra='') {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${inner}</svg>`;
 }
@@ -1112,7 +1116,7 @@ function featuredCardHtml(o) {
     <div class="offer-card offer-card-featured" onclick="openOffer(${o.id})">
       ${badge ? `<div class="offer-featured-badge">${badge}</div>` : ''}
       <div class="offer-featured-top">
-        <div class="offer-logo-lg" style="background:${o.logoBg};color:${o.logoColor};">${o.logo}</div>
+        <div class="offer-logo-lg" style="background:${o.logoColor};color:${logoTextColor(o.logoColor)};">${o.logo}</div>
         <div>
           <div class="offer-featured-name">${o.name}</div>
           <div class="offer-featured-cat">${CAT_LABELS[o.cat] || ''}</div>
@@ -1130,7 +1134,7 @@ function featuredCardHtml(o) {
 function compactRowHtml(o) {
   return `
     <div class="offer-row" onclick="openOffer(${o.id})">
-      <div class="offer-row-logo" style="background:${o.logoBg};color:${o.logoColor};">${o.logo}</div>
+      <div class="offer-row-logo" style="background:${o.logoColor};color:${logoTextColor(o.logoColor)};">${o.logo}</div>
       <div class="offer-row-body">
         <div class="offer-row-name">${o.name}<span class="offer-row-discount">${o.discount}</span></div>
         <div class="offer-row-desc">${o.short}</div>
@@ -1169,7 +1173,7 @@ function openOffer(id) {
   const o = OFFERS.find(x => x.id === id);
   if (!o) return;
   document.getElementById('m-logo').innerHTML = o.logo;
-  document.getElementById('m-logo').style.cssText = `background:${o.logoBg};color:${o.logoColor};width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;flex-shrink:0;`;
+  document.getElementById('m-logo').style.cssText = `background:${o.logoColor};color:${logoTextColor(o.logoColor)};width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0;box-shadow:0 3px 8px rgba(0,0,0,0.2);`;
   document.getElementById('m-title').textContent = o.name;
   document.getElementById('m-cat').textContent = CAT_LABELS[o.cat] + ' · ' + o.used.toLocaleString('ru') + ' использовали';
   document.getElementById('m-body').innerHTML = `
