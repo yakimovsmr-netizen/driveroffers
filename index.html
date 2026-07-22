@@ -165,9 +165,24 @@
     transition: all 0.2s; min-width: 72px;
   }
   .cat-btn.active { background: rgba(245,166,35,0.12); border-color: var(--acc); }
-  .cat-icon { font-size: 22px; line-height: 1; }
+  .cat-btn.cat-best { background: rgba(245,166,35,0.08); border-color: rgba(245,166,35,0.35); }
+  .cat-btn.cat-best.active { background: rgba(245,166,35,0.18); }
+  .cat-icon { color: var(--gray); display: flex; align-items: center; justify-content: center; }
+  .cat-icon svg { width: 22px; height: 22px; stroke: currentColor; display: block; }
+  .cat-btn.active .cat-icon { color: var(--acc); }
+  .cat-btn.cat-best .cat-icon { color: var(--acc); }
   .cat-label { font-size: 11px; color: var(--gray); font-weight: 500; text-align: center; white-space: nowrap; }
   .cat-btn.active .cat-label { color: var(--acc); font-weight: 600; }
+  .cat-btn.cat-best .cat-label { color: var(--acc); font-weight: 600; }
+
+  /* ── SPONSORED BADGE ── */
+  .offer-sponsored {
+    position: absolute; top: 10px; right: 10px;
+    background: linear-gradient(135deg, var(--acc), var(--acc2)); color: #000;
+    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .offer-sponsored svg { width: 10px; height: 10px; stroke: #000; }
 
   /* ── OFFER CARDS ── */
   .offers-list { padding: 4px 14px 8px; display: flex; flex-direction: column; gap: 10px; }
@@ -219,10 +234,11 @@
     padding: 10px 0 8px; cursor: pointer; gap: 4px;
     border: none; background: none;
   }
-  .nav-icon { font-size: 22px; line-height: 1; }
+  .nav-icon { color: var(--gray); display: flex; align-items: center; justify-content: center; }
+  .nav-icon svg { width: 22px; height: 22px; stroke: currentColor; display: block; }
   .nav-label { font-size: 10px; color: var(--gray); font-weight: 500; }
   .nav-item.active .nav-label { color: var(--acc); }
-  .nav-item.active .nav-icon { filter: none; }
+  .nav-item.active .nav-icon { color: var(--acc); }
 
   /* ── MODAL ── */
   .modal-overlay {
@@ -296,13 +312,15 @@
   .menu-section { background: var(--bg2); border-radius: var(--card-r); overflow: hidden; border: 1px solid rgba(255,255,255,0.07); margin-bottom: 10px; }
   .menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
   .menu-item:last-child { border-bottom: none; }
-  .menu-item-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .menu-item-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .menu-item-icon svg { width: 18px; height: 18px; stroke: currentColor; display: block; }
   .menu-item-text { flex: 1; font-size: 14px; }
   .menu-item-arrow { color: var(--gray2); font-size: 16px; }
 
   /* ── EMPTY ── */
   .empty { text-align: center; padding: 50px 30px; }
-  .empty-icon { font-size: 48px; margin-bottom: 14px; }
+  .empty-icon { font-size: 48px; margin-bottom: 14px; color: var(--gray2); }
+  .empty-icon svg { width: 48px; height: 48px; stroke: currentColor; }
   .empty-text { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
   .empty-sub { font-size: 13px; color: var(--gray); }
 
@@ -379,32 +397,7 @@
       <!-- CATEGORIES -->
       <div class="section-title">Категории</div>
       <div class="cats-wrap">
-        <div class="cats" id="cats">
-          <div class="cat-btn active" data-cat="all" onclick="setCategory('all', this)">
-            <div class="cat-icon">🏷</div>
-            <div class="cat-label">Все</div>
-          </div>
-          <div class="cat-btn" data-cat="azs" onclick="setCategory('azs', this)">
-            <div class="cat-icon">⛽</div>
-            <div class="cat-label">АЗС</div>
-          </div>
-          <div class="cat-btn" data-cat="insurance" onclick="setCategory('insurance', this)">
-            <div class="cat-icon">🛡</div>
-            <div class="cat-label">Страхование</div>
-          </div>
-          <div class="cat-btn" data-cat="food" onclick="setCategory('food', this)">
-            <div class="cat-icon">🍔</div>
-            <div class="cat-label">Еда</div>
-          </div>
-          <div class="cat-btn" data-cat="service" onclick="setCategory('service', this)">
-            <div class="cat-icon">🔧</div>
-            <div class="cat-label">Автосервис</div>
-          </div>
-          <div class="cat-btn" data-cat="tires" onclick="setCategory('tires', this)">
-            <div class="cat-icon">🔄</div>
-            <div class="cat-label">Шиномонтаж</div>
-          </div>
-        </div>
+        <div class="cats" id="cats"></div>
       </div>
 
       <div style="height:12px"></div>
@@ -438,29 +431,29 @@
         </div>
         <div class="menu-section">
           <div class="menu-item">
-            <div class="menu-item-icon" style="background:rgba(245,166,35,0.15);">🎟</div>
+            <div class="menu-item-icon" style="background:rgba(245,166,35,0.15);color:#F5A623;" id="menu-icon-tickets"></div>
             <div class="menu-item-text">Мои купоны</div>
             <div class="menu-item-arrow">›</div>
           </div>
           <div class="menu-item">
-            <div class="menu-item-icon" style="background:rgba(34,197,94,0.15);">⭐</div>
+            <div class="menu-item-icon" style="background:rgba(34,197,94,0.15);color:#22c55e;" id="menu-icon-favs"></div>
             <div class="menu-item-text">Избранные офферы</div>
             <div class="menu-item-arrow">›</div>
           </div>
           <div class="menu-item">
-            <div class="menu-item-icon" style="background:rgba(59,130,246,0.15);">📊</div>
+            <div class="menu-item-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;" id="menu-icon-stats"></div>
             <div class="menu-item-text">История экономии</div>
             <div class="menu-item-arrow">›</div>
           </div>
         </div>
         <div class="menu-section">
           <div class="menu-item">
-            <div class="menu-item-icon" style="background:rgba(139,92,246,0.15);">🔔</div>
+            <div class="menu-item-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6;" id="menu-icon-bell"></div>
             <div class="menu-item-text">Уведомления</div>
             <div class="menu-item-arrow">›</div>
           </div>
           <div class="menu-item">
-            <div class="menu-item-icon" style="background:rgba(107,114,126,0.15);">❓</div>
+            <div class="menu-item-icon" style="background:rgba(107,114,126,0.15);color:#8b909e;" id="menu-icon-help"></div>
             <div class="menu-item-text">Помощь</div>
             <div class="menu-item-arrow">›</div>
           </div>
@@ -476,15 +469,15 @@
   <!-- BOTTOM NAV -->
   <div class="bottom-nav">
     <button class="nav-item active" onclick="showPage('home', this)">
-      <div class="nav-icon">🏠</div>
+      <div class="nav-icon" id="nav-icon-home"></div>
       <div class="nav-label">Главная</div>
     </button>
     <button class="nav-item" onclick="showPage('search', this)">
-      <div class="nav-icon">🔍</div>
+      <div class="nav-icon" id="nav-icon-search"></div>
       <div class="nav-label">Поиск</div>
     </button>
     <button class="nav-item" onclick="showPage('profile', this)">
-      <div class="nav-icon">👤</div>
+      <div class="nav-icon" id="nav-icon-profile"></div>
       <div class="nav-label">Профиль</div>
     </button>
   </div>
@@ -598,6 +591,29 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ── ICONS (Lucide-style line icons) ──
+function svg(inner, extra='') {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${inner}</svg>`;
+}
+const ICONS = {
+  tag: svg('<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1.5"/>'),
+  star: svg('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+  fuel: svg('<path d="M3 22h10"/><path d="M4 9h9"/><path d="M13 22V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v17"/><path d="M13 13h2a2 2 0 0 1 2 2v3a1.5 1.5 0 0 0 3 0V9l-3-3"/>'),
+  shield: svg('<path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5z"/>'),
+  utensils: svg('<path d="M3 2v7c0 1.1.9 2 2 2h0a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>'),
+  wrench: svg('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/>'),
+  disc: svg('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>'),
+  home: svg('<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'),
+  fileText: svg('<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>'),
+  percent: svg('<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>'),
+  search: svg('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'),
+  user: svg('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'),
+  ticket: svg('<path d="M2 9a3 3 0 1 1 0 6v3a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-3a3 3 0 1 1 0-6V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>'),
+  barChart: svg('<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>'),
+  bell: svg('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>'),
+  helpCircle: svg('<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>'),
+};
+
 // ── TELEGRAM INIT ──
 const tg = window.Telegram?.WebApp;
 if (tg) {
@@ -624,7 +640,7 @@ const OFFERS = [
     discount:'4 руб./л', short:'Скидка 4 рубля с каждого литра топлива',
     full:'Фиксированная скидка 4 рубля с литра на АИ-92, АИ-95 и дизель. Действует при предъявлении QR-кода приложения.',
     conditions:['Скидка на АИ-92, АИ-95 и дизель','Без ограничений по объёму заправки','Действует в Московском регионе'],
-    used:2310, expires:'15 сентября 2026', hot:true },
+    used:2310, expires:'15 сентября 2026', hot:true, sponsored:true },
 
   { id:3, cat:'azs', name:'Роснефть', logo:'РОС', logoColor:'#ffd100', logoBg:'rgba(255,209,0,0.15)',
     discount:'3% кэшбэк', short:'Кэшбэк на топливо + 2x баллы по карте',
@@ -656,7 +672,7 @@ const OFFERS = [
     discount:'20% скидка', short:'Скидка на всё меню с 6:00 до 11:00',
     full:'Скидка 20% на всё меню в утренние часы с 6:00 до 11:00 при предъявлении QR-кода из приложения. Идеально для завтрака между заказами.',
     conditions:['Действует с 6:00 до 11:00','Во всех ресторанах сети','Скидка не суммируется с другими акциями'],
-    used:3200, expires:'31 августа 2026', hot:true },
+    used:3200, expires:'31 августа 2026', hot:true, sponsored:true },
 
   { id:8, cat:'food', name:'Surf Coffee', logo:'SC', logoColor:'#00b4d8', logoBg:'rgba(0,180,216,0.15)',
     discount:'2-й кофе в подарок', short:'Берёшь 1 кофе — второй бесплатно для водителей',
@@ -693,7 +709,7 @@ const OFFERS = [
     discount:'Бесплатная диагностика', short:'Полная компьютерная диагностика авто бесплатно',
     full:'Бесплатная полная компьютерная диагностика всех систем автомобиля: двигатель, АКПП, тормоза, подвеска. Стоимость услуги — 2 500 руб.',
     conditions:['Только при записи через DriverOffers','Диагностика без ремонта — тоже бесплатно','Отчёт о состоянии авто выдаётся на руки'],
-    used:1890, expires:'31 августа 2026', hot:true },
+    used:1890, expires:'31 августа 2026', hot:true, sponsored:true },
 
   // ШИНОМОНТАЖ
   { id:14, cat:'tires', name:'4 Колеса', logo:'4К', logoColor:'#059669', logoBg:'rgba(5,150,105,0.15)',
@@ -712,21 +728,106 @@ const OFFERS = [
     discount:'3 по цене 2', short:'Купи 3 шины — 4-я в подарок при замене',
     full:'При покупке и установке 3 шин любого бренда — 4-я шина аналогичной модели бесплатно. Акция действует на все шины в наличии.',
     conditions:['Шины должны быть одной марки и модели','Акция на все бренды в наличии','Установка и балансировка по стандартному тарифу'],
-    used:580, expires:'31 октября 2026', hot:true },
+    used:580, expires:'31 октября 2026', hot:true, sponsored:true },
+
+  // ЖИЛЬЁ
+  { id:17, cat:'housing', name:'Суточно.ру', logo:'СУТ', logoColor:'#0ea5e9', logoBg:'rgba(14,165,233,0.15)',
+    discount:'15% скидка', short:'Скидка на квартиры посуточно для дальних смен',
+    full:'Скидка 15% на бронирование квартир посуточно по всей России. Удобно для командировок, дальних заказов и межгородних поездок.',
+    conditions:['Промокод активируется в приложении партнёра','Действует на все объекты с меткой "Скидка водителям"','Не суммируется с другими акциями'],
+    used:410, expires:'30 сентября 2026', hot:false },
+
+  { id:18, cat:'housing', name:'Домклик', logo:'ДОМ', logoColor:'#21a038', logoBg:'rgba(33,160,56,0.15)',
+    discount:'Без комиссии', short:'Аренда квартиры рядом с зоной работы без комиссии',
+    full:'Поиск и аренда квартиры без комиссии агентству при подключении через DriverOffers. Подбор жилья рядом с зонами высокого спроса.',
+    conditions:['Только для длительной аренды от 3 месяцев','Комиссию оплачивает партнёр, не арендатор','Доступно в 15 крупнейших городах РФ'],
+    used:195, expires:'31 декабря 2026', hot:false },
+
+  { id:19, cat:'housing', name:'Авито Недвижимость', logo:'АВТ', logoColor:'#97cf26', logoBg:'rgba(151,207,38,0.15)',
+    discount:'Приоритет в поиске', short:'Приоритетный показ объявлений аренды для водителей',
+    full:'Специальный фильтр "Рядом с работой" и приоритетный показ объявлений аренды при поиске через DriverOffers.',
+    conditions:['Нужен профиль верифицированного водителя','Фильтр по удалённости от зоны работы','Бесплатно для пользователей приложения'],
+    used:670, expires:'31 октября 2026', hot:false },
+
+  // ДОКУМЕНТЫ
+  { id:20, cat:'docs', name:'Мой Налог Помощник', logo:'МНП', logoColor:'#22c55e', logoBg:'rgba(34,197,94,0.15)',
+    discount:'Бесплатно', short:'Бесплатная помощь с регистрацией самозанятости',
+    full:'Бесплатная регистрация статуса самозанятого через партнёра DriverOffers. Помощь с настройкой приложения "Мой налог" и первым отчётом.',
+    conditions:['Регистрация за 1 рабочий день','Консультация по налоговому режиму НПД','Поддержка в чате на весь период работы'],
+    used:1120, expires:'31 декабря 2026', hot:true },
+
+  { id:21, cat:'docs', name:'СБИС', logo:'СБИ', logoColor:'#f97316', logoBg:'rgba(249,115,22,0.15)',
+    discount:'30% скидка', short:'Скидка на электронную подпись и отчётность',
+    full:'Скидка 30% на оформление электронной подписи (ЭЦП) и подключение к сервису отчётности для ИП и самозанятых водителей.',
+    conditions:['Только для новых клиентов СБИС','ЭЦП оформляется дистанционно','Отчётность — по тарифу "Самозанятый"'],
+    used:238, expires:'30 сентября 2026', hot:false },
+
+  { id:22, cat:'docs', name:'Юрист24', logo:'Ю24', logoColor:'#6366f1', logoBg:'rgba(99,102,241,0.15)',
+    discount:'Консультация бесплатно', short:'Бесплатная юрконсультация по регистрации и налогам',
+    full:'Бесплатная консультация юриста по вопросам регистрации ИП/самозанятости, налогов и трудовых споров с таксопарками.',
+    conditions:['Один звонок до 30 минут бесплатно','Дальнейшее сопровождение — по тарифу','Работает 7 дней в неделю с 9:00 до 21:00'],
+    used:512, expires:'31 августа 2026', hot:false },
+
+  // ПАРКИ С НИЗКОЙ КОМИССИЕЙ
+  { id:23, cat:'parks', name:'Таксопарк «Волна»', logo:'ВЛН', logoColor:'#0891b2', logoBg:'rgba(8,145,178,0.15)',
+    discount:'Комиссия 5%', short:'Одна из самых низких комиссий на рынке + бонус за подключение',
+    full:'Комиссия всего 5% для водителей, подключившихся через DriverOffers, плюс бонус 1 500 руб. за первую неделю активной работы.',
+    conditions:['Комиссия 5% первые 2 месяца, далее 9%','Бонус выплачивается после 20 заказов','Работа с Яндекс Go и Ситимобил'],
+    used:340, expires:'30 сентября 2026', hot:true, sponsored:true },
+
+  { id:24, cat:'parks', name:'Таксопарк «Экспресс Столица»', logo:'ЭКС', logoColor:'#dc2626', logoBg:'rgba(220,38,38,0.15)',
+    discount:'Комиссия 4%', short:'Фиксированная комиссия 4% в первый месяц работы',
+    full:'Комиссия 4% в первый месяц для новых водителей, далее стандартные 8%. Мгновенные выплаты 24/7 на любую карту.',
+    conditions:['Только для новых водителей парка','Выплаты без выходных и праздников','Подключение самозанятых без ИП'],
+    used:275, expires:'31 октября 2026', hot:false },
+
+  { id:25, cat:'parks', name:'Таксопарк «СитиДрайв Парк»', logo:'СДП', logoColor:'#7c3aed', logoBg:'rgba(124,58,237,0.15)',
+    discount:'Комиссия 6%', short:'Стабильная низкая комиссия без скрытых условий',
+    full:'Комиссия 6% постоянно, без временных акций и повышения после испытательного срока. Прозрачные условия партнёрства.',
+    conditions:['Комиссия фиксирована — не меняется со временем','Поддержка водителя в Telegram 24/7','Работа в Москве, СПб и области'],
+    used:190, expires:'31 декабря 2026', hot:false },
 ];
 
-const CAT_LABELS = { all:'Все офферы', azs:'АЗС', insurance:'Страхование', food:'Еда', service:'Автосервис', tires:'Шиномонтаж' };
+const CAT_LABELS = {
+  all:'Все офферы', best:'Лучшие предложения', azs:'АЗС', insurance:'Страхование',
+  food:'Еда', service:'Автосервис', tires:'Шиномонтаж',
+  housing:'Жильё', docs:'Документы', parks:'Парки с низкой комиссией'
+};
+
+const CATEGORIES = [
+  { id:'all',      label:'Все',                     icon: ICONS.tag,      cls:'' },
+  { id:'best',     label:'Лучшие предложения',      icon: ICONS.star,     cls:'cat-best' },
+  { id:'azs',      label:'АЗС',                     icon: ICONS.fuel,     cls:'' },
+  { id:'insurance',label:'Страхование',             icon: ICONS.shield,   cls:'' },
+  { id:'food',     label:'Еда',                     icon: ICONS.utensils, cls:'' },
+  { id:'service',  label:'Автосервис',              icon: ICONS.wrench,   cls:'' },
+  { id:'tires',    label:'Шиномонтаж',              icon: ICONS.disc,     cls:'' },
+  { id:'housing',  label:'Жильё',                   icon: ICONS.home,     cls:'' },
+  { id:'docs',     label:'Документы',               icon: ICONS.fileText, cls:'' },
+  { id:'parks',    label:'Парки с низкой комиссией',icon: ICONS.percent,  cls:'' },
+];
+
 let currentCat = 'all';
+
+function renderCategories() {
+  const el = document.getElementById('cats');
+  el.innerHTML = CATEGORIES.map((c, i) => `
+    <div class="cat-btn ${c.cls} ${i === 0 ? 'active' : ''}" data-cat="${c.id}" onclick="setCategory('${c.id}', this)">
+      <div class="cat-icon">${c.icon}</div>
+      <div class="cat-label">${c.label}</div>
+    </div>
+  `).join('');
+}
 
 function renderOffers(list, containerId) {
   const el = document.getElementById(containerId);
   if (!list.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Ничего не найдено</div><div class="empty-sub">Попробуйте другой запрос</div></div>';
+    el.innerHTML = `<div class="empty"><div class="empty-icon" style="display:flex;justify-content:center;">${ICONS.search}</div><div class="empty-text">Ничего не найдено</div><div class="empty-sub">Попробуйте другой запрос</div></div>`;
     return;
   }
   el.innerHTML = list.map(o => `
     <div class="offer-card" onclick="openOffer(${o.id})">
-      ${o.hot ? '<div class="offer-hot">Хит</div>' : ''}
+      ${o.sponsored ? `<div class="offer-sponsored">${ICONS.star}Спонсировано</div>` : (o.hot ? '<div class="offer-hot">Хит</div>' : '')}
       <div class="offer-inner">
         <div class="offer-logo" style="background:${o.logoBg};color:${o.logoColor};">${o.logo}</div>
         <div class="offer-body">
@@ -747,7 +848,10 @@ function setCategory(cat, btn) {
   currentCat = cat;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  const filtered = cat === 'all' ? OFFERS : OFFERS.filter(o => o.cat === cat);
+  let filtered;
+  if (cat === 'all') filtered = OFFERS;
+  else if (cat === 'best') filtered = OFFERS.filter(o => o.sponsored);
+  else filtered = OFFERS.filter(o => o.cat === cat);
   renderOffers(filtered, 'offers-list');
 }
 
@@ -922,8 +1026,22 @@ function initTheme() {
   }
 }
 
+// ── STATIC ICONS ──
+function renderStaticIcons() {
+  document.getElementById('nav-icon-home').innerHTML = ICONS.home;
+  document.getElementById('nav-icon-search').innerHTML = ICONS.search;
+  document.getElementById('nav-icon-profile').innerHTML = ICONS.user;
+  document.getElementById('menu-icon-tickets').innerHTML = ICONS.ticket;
+  document.getElementById('menu-icon-favs').innerHTML = ICONS.star;
+  document.getElementById('menu-icon-stats').innerHTML = ICONS.barChart;
+  document.getElementById('menu-icon-bell').innerHTML = ICONS.bell;
+  document.getElementById('menu-icon-help').innerHTML = ICONS.helpCircle;
+}
+
 // ── INIT ──
 initTheme();
+renderStaticIcons();
+renderCategories();
 renderOffers(OFFERS, 'offers-list');
 startTimer();
 </script>
