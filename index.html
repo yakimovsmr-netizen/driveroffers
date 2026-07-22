@@ -252,7 +252,16 @@
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     font-size: 15px; font-weight: 800; flex-shrink: 0;
+    position: relative; overflow: hidden;
   }
+  .logo-fallback { position: relative; z-index: 1; }
+  .logo-img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: contain; background: #fff; border-radius: 50%; z-index: 2;
+  }
+  .offer-logo-lg .logo-img { padding: 9px; }
+  .offer-row-logo .logo-img { padding: 6px; }
+  .modal-logo .logo-img { padding: 10px; }
   .offer-featured-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
   .offer-featured-cat { font-size: 11px; color: var(--gray); }
   .offer-featured-desc { font-size: 13px; color: var(--gray); line-height: 1.45; margin-bottom: 14px; }
@@ -274,6 +283,7 @@
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.15);
     font-size: 11px; font-weight: 800;
+    position: relative; overflow: hidden;
   }
   .offer-row-body { flex: 1; min-width: 0; }
   .offer-row-name { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
@@ -860,6 +870,12 @@ function logoTextColor(hex) {
   return luminance > 0.6 ? '#151515' : '#ffffff';
 }
 
+function logoMarkup(o) {
+  const fallback = `<span class="logo-fallback">${o.logo}</span>`;
+  if (!o.domain) return fallback;
+  return `${fallback}<img class="logo-img" src="https://logo.clearbit.com/${o.domain}?size=128" loading="lazy" onerror="this.style.display='none'">`;
+}
+
 function svg(inner, extra='') {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${inner}</svg>`;
 }
@@ -901,76 +917,76 @@ if (tg) {
 // ── DATA ──
 const OFFERS = [
   // АЗС
-  { id:1, cat:'azs', name:'Лукойл', logo:'ЛУК', logoColor:'#e4002b', logoBg:'rgba(228,0,43,0.15)',
+  { id:1, cat:'azs', name:'Лукойл', logo:'ЛУК', logoColor:'#e4002b', logoBg:'rgba(228,0,43,0.15)', domain:'lukoil.ru',
     discount:'5% кэшбэк', short:'Кэшбэк на все виды топлива по карте водителя',
     full:'Кэшбэк 5% на все виды топлива при оплате картой водителя Bono. Сумма кэшбэка зачисляется на счёт в течение 3 рабочих дней.',
     conditions:['Действует на всех АЗС Лукойл по России','Максимальная сумма кэшбэка — 500 руб. в месяц','Необходимо показать QR-код кассиру'],
     used:1840, expires:'31 августа 2026', hot:false },
 
-  { id:2, cat:'azs', name:'Газпромнефть', logo:'ГПН', logoColor:'#003087', logoBg:'rgba(0,48,135,0.15)',
+  { id:2, cat:'azs', name:'Газпромнефть', logo:'ГПН', logoColor:'#003087', logoBg:'rgba(0,48,135,0.15)', domain:'gazpromneft.ru',
     discount:'4 руб./л', short:'Скидка 4 рубля с каждого литра топлива',
     full:'Фиксированная скидка 4 рубля с литра на АИ-92, АИ-95 и дизель. Действует при предъявлении QR-кода приложения.',
     conditions:['Скидка на АИ-92, АИ-95 и дизель','Без ограничений по объёму заправки','Действует в Московском регионе'],
     used:2310, expires:'15 сентября 2026', hot:true, sponsored:true },
 
-  { id:3, cat:'azs', name:'Роснефть', logo:'РОС', logoColor:'#ffd100', logoBg:'rgba(255,209,0,0.15)',
+  { id:3, cat:'azs', name:'Роснефть', logo:'РОС', logoColor:'#ffd100', logoBg:'rgba(255,209,0,0.15)', domain:'rosneft.ru',
     discount:'3% кэшбэк', short:'Кэшбэк на топливо + 2x баллы по карте',
     full:'Кэшбэк 3% на топливо плюс двойные баллы по карте лояльности РН-Бонус для водителей, верифицированных в Bono.',
     conditions:['Необходима карта РН-Бонус','Действует на всех АЗС Роснефть','Кэшбэк и баллы суммируются'],
     used:980, expires:'30 сентября 2026', hot:false },
 
   // СТРАХОВАНИЕ
-  { id:4, cat:'insurance', name:'Тинькофф Страхование', logo:'ТИН', logoColor:'#ffdd2d', logoBg:'rgba(255,221,45,0.15)',
+  { id:4, cat:'insurance', name:'Тинькофф Страхование', logo:'ТИН', logoColor:'#ffdd2d', logoBg:'rgba(255,221,45,0.15)', domain:'tinkoff.ru',
     discount:'15% скидка', short:'Скидка на ОСАГО для профессиональных водителей',
     full:'Специальная скидка 15% на полис ОСАГО при оформлении через Bono. Расчёт и оформление онлайн за 5 минут.',
     conditions:['Только для водителей со стажем от 2 лет','Скидка применяется к базовому тарифу','Полис отправляется на email сразу после оплаты'],
     used:654, expires:'31 декабря 2026', hot:false },
 
-  { id:5, cat:'insurance', name:'Ингосстрах', logo:'ИНГ', logoColor:'#0057a8', logoBg:'rgba(0,87,168,0.15)',
+  { id:5, cat:'insurance', name:'Ингосстрах', logo:'ИНГ', logoColor:'#0057a8', logoBg:'rgba(0,87,168,0.15)', domain:'ingos.ru',
     discount:'10% + рассрочка', short:'КАСКО в рассрочку без переплат для таксистов',
     full:'КАСКО с франшизой от 10 000 руб. со скидкой 10% и рассрочкой на 6 месяцев без переплаты. Специальные условия для водителей такси.',
     conditions:['Автомобиль не старше 10 лет','Необходима диагностическая карта','Рассрочка без банка — от страховщика'],
     used:312, expires:'31 октября 2026', hot:false },
 
-  { id:6, cat:'insurance', name:'АльфаСтрахование', logo:'АЛФ', logoColor:'#ef3124', logoBg:'rgba(239,49,36,0.15)',
+  { id:6, cat:'insurance', name:'АльфаСтрахование', logo:'АЛФ', logoColor:'#ef3124', logoBg:'rgba(239,49,36,0.15)', domain:'alfastrah.ru',
     discount:'Бесплатный юрист', short:'ОСАГО + бесплатная юрпомощь при ДТП',
     full:'При оформлении ОСАГО через Bono — бесплатная юридическая помощь при ДТП в течение 1 года. Юрист выезжает на место.',
     conditions:['Услуга включена в базовый полис','Выезд юриста в Москве и СПб','В регионах — консультация по телефону 24/7'],
     used:891, expires:'31 августа 2026', hot:true },
 
   // ЕДА
-  { id:7, cat:'food', name:'Вкусно — и точка', logo:'ВТ', logoColor:'#da291c', logoBg:'rgba(218,41,28,0.15)',
+  { id:7, cat:'food', name:'Вкусно — и точка', logo:'ВТ', logoColor:'#da291c', logoBg:'rgba(218,41,28,0.15)', domain:'vkusnoitochka.ru',
     discount:'20% скидка', short:'Скидка на всё меню с 6:00 до 11:00',
     full:'Скидка 20% на всё меню в утренние часы с 6:00 до 11:00 при предъявлении QR-кода из приложения. Идеально для завтрака между заказами.',
     conditions:['Действует с 6:00 до 11:00','Во всех ресторанах сети','Скидка не суммируется с другими акциями'],
     used:3200, expires:'31 августа 2026', hot:true, sponsored:true },
 
-  { id:8, cat:'food', name:'Surf Coffee', logo:'SC', logoColor:'#00b4d8', logoBg:'rgba(0,180,216,0.15)',
+  { id:8, cat:'food', name:'Surf Coffee', logo:'SC', logoColor:'#00b4d8', logoBg:'rgba(0,180,216,0.15)', domain:'surfcoffee.ru',
     discount:'2-й кофе в подарок', short:'Берёшь 1 кофе — второй бесплатно для водителей',
     full:'Специальный оффер для водителей: при заказе любого кофе второй такой же напиток в подарок. По QR-коду из приложения.',
     conditions:['Один раз в день на одного водителя','Второй напиток — тот же вид','Участвуют все кофейни Surf Coffee'],
     used:1560, expires:'30 сентября 2026', hot:false },
 
-  { id:9, cat:'food', name:'KFC', logo:'KFC', logoColor:'#e4002b', logoBg:'rgba(228,0,43,0.15)',
+  { id:9, cat:'food', name:'KFC', logo:'KFC', logoColor:'#e4002b', logoBg:'rgba(228,0,43,0.15)', domain:'kfc.com',
     discount:'15% скидка', short:'Скидка на весь заказ при показе QR',
     full:'Скидка 15% на весь заказ в KFC при предъявлении QR-кода Bono. Действует на все позиции меню, включая Баскеты и Биг-Твистеры.',
     conditions:['Скидка на весь чек','До 2 раз в день на одного водителя','Во всех ресторанах России'],
     used:2870, expires:'31 октября 2026', hot:false },
 
-  { id:10, cat:'food', name:'Burger King', logo:'BK', logoColor:'#ff8732', logoBg:'rgba(255,135,50,0.15)',
+  { id:10, cat:'food', name:'Burger King', logo:'BK', logoColor:'#ff8732', logoBg:'rgba(255,135,50,0.15)', domain:'burgerking.com',
     discount:'Воппер за 99 ₽', short:'Культовый Воппер по специальной цене',
     full:'Воппер за 99 рублей при покупке любого напитка по обычной цене. Только по QR-коду Bono.',
     conditions:['Необходима покупка напитка','Один раз в день','Во всех ресторанах BK в России'],
     used:4100, expires:'15 августа 2026', hot:true },
 
   // АВТОСЕРВИС
-  { id:11, cat:'service', name:'FIT SERVICE', logo:'FIT', logoColor:'#ff6b00', logoBg:'rgba(255,107,0,0.15)',
+  { id:11, cat:'service', name:'FIT SERVICE', logo:'FIT', logoColor:'#ff6b00', logoBg:'rgba(255,107,0,0.15)', domain:'fitservice.ru',
     discount:'20% на ТО', short:'Скидка на техническое обслуживание автомобиля',
     full:'Скидка 20% на полное техническое обслуживание любого автомобиля. Включает замену масла, фильтров, диагностику всех систем.',
     conditions:['Необходима предварительная запись','Действует во всех 400+ сервисах сети','Работы на оригинальных или сертифицированных запчастях'],
     used:720, expires:'30 сентября 2026', hot:false },
 
-  { id:12, cat:'service', name:'Вилгуд', logo:'ВГД', logoColor:'#7c3aed', logoBg:'rgba(124,58,237,0.15)',
+  { id:12, cat:'service', name:'Вилгуд', logo:'ВГД', logoColor:'#7c3aed', logoBg:'rgba(124,58,237,0.15)', domain:'vilgood.ru',
     discount:'15% + гарантия', short:'Скидка на ремонт + гарантия 1 год на работы',
     full:'Скидка 15% на все виды ремонта плюс увеличенная гарантия 1 год на выполненные работы. Вилгуд — сеть умных автосервисов с видеонаблюдением.',
     conditions:['Онлайн-запись через приложение','Видеотрансляция ремонта для клиента','Фиксированные цены без скрытых доплат'],
@@ -1002,19 +1018,19 @@ const OFFERS = [
     used:580, expires:'31 октября 2026', hot:true, sponsored:true },
 
   // ЖИЛЬЁ
-  { id:17, cat:'housing', name:'Суточно.ру', logo:'СУТ', logoColor:'#0ea5e9', logoBg:'rgba(14,165,233,0.15)',
+  { id:17, cat:'housing', name:'Суточно.ру', logo:'СУТ', logoColor:'#0ea5e9', logoBg:'rgba(14,165,233,0.15)', domain:'sutochno.ru',
     discount:'15% скидка', short:'Скидка на квартиры посуточно для дальних смен',
     full:'Скидка 15% на бронирование квартир посуточно по всей России. Удобно для командировок, дальних заказов и межгородних поездок.',
     conditions:['Промокод активируется в приложении партнёра','Действует на все объекты с меткой "Скидка водителям"','Не суммируется с другими акциями'],
     used:410, expires:'30 сентября 2026', hot:false },
 
-  { id:18, cat:'housing', name:'Домклик', logo:'ДОМ', logoColor:'#21a038', logoBg:'rgba(33,160,56,0.15)',
+  { id:18, cat:'housing', name:'Домклик', logo:'ДОМ', logoColor:'#21a038', logoBg:'rgba(33,160,56,0.15)', domain:'domclick.ru',
     discount:'Без комиссии', short:'Аренда квартиры рядом с зоной работы без комиссии',
     full:'Поиск и аренда квартиры без комиссии агентству при подключении через Bono. Подбор жилья рядом с зонами высокого спроса.',
     conditions:['Только для длительной аренды от 3 месяцев','Комиссию оплачивает партнёр, не арендатор','Доступно в 15 крупнейших городах РФ'],
     used:195, expires:'31 декабря 2026', hot:false },
 
-  { id:19, cat:'housing', name:'Авито Недвижимость', logo:'АВТ', logoColor:'#97cf26', logoBg:'rgba(151,207,38,0.15)',
+  { id:19, cat:'housing', name:'Авито Недвижимость', logo:'АВТ', logoColor:'#97cf26', logoBg:'rgba(151,207,38,0.15)', domain:'avito.ru',
     discount:'Приоритет в поиске', short:'Приоритетный показ объявлений аренды для водителей',
     full:'Специальный фильтр "Рядом с работой" и приоритетный показ объявлений аренды при поиске через Bono.',
     conditions:['Нужен профиль верифицированного водителя','Фильтр по удалённости от зоны работы','Бесплатно для пользователей приложения'],
@@ -1027,7 +1043,7 @@ const OFFERS = [
     conditions:['Регистрация за 1 рабочий день','Консультация по налоговому режиму НПД','Поддержка в чате на весь период работы'],
     used:1120, expires:'31 декабря 2026', hot:true },
 
-  { id:21, cat:'docs', name:'СБИС', logo:'СБИ', logoColor:'#f97316', logoBg:'rgba(249,115,22,0.15)',
+  { id:21, cat:'docs', name:'СБИС', logo:'СБИ', logoColor:'#f97316', logoBg:'rgba(249,115,22,0.15)', domain:'sbis.ru',
     discount:'30% скидка', short:'Скидка на электронную подпись и отчётность',
     full:'Скидка 30% на оформление электронной подписи (ЭЦП) и подключение к сервису отчётности для ИП и самозанятых водителей.',
     conditions:['Только для новых клиентов СБИС','ЭЦП оформляется дистанционно','Отчётность — по тарифу "Самозанятый"'],
@@ -1116,7 +1132,7 @@ function featuredCardHtml(o) {
     <div class="offer-card offer-card-featured" onclick="openOffer(${o.id})">
       ${badge ? `<div class="offer-featured-badge">${badge}</div>` : ''}
       <div class="offer-featured-top">
-        <div class="offer-logo-lg" style="background:${o.logoColor};color:${logoTextColor(o.logoColor)};">${o.logo}</div>
+        <div class="offer-logo-lg" style="background:${o.logoColor};color:${logoTextColor(o.logoColor)};">${logoMarkup(o)}</div>
         <div>
           <div class="offer-featured-name">${o.name}</div>
           <div class="offer-featured-cat">${CAT_LABELS[o.cat] || ''}</div>
@@ -1134,7 +1150,7 @@ function featuredCardHtml(o) {
 function compactRowHtml(o) {
   return `
     <div class="offer-row" onclick="openOffer(${o.id})">
-      <div class="offer-row-logo" style="background:${o.logoColor};color:${logoTextColor(o.logoColor)};">${o.logo}</div>
+      <div class="offer-row-logo" style="background:${o.logoColor};color:${logoTextColor(o.logoColor)};">${logoMarkup(o)}</div>
       <div class="offer-row-body">
         <div class="offer-row-name">${o.name}<span class="offer-row-discount">${o.discount}</span></div>
         <div class="offer-row-desc">${o.short}</div>
@@ -1172,8 +1188,8 @@ function setCategory(cat, btn) {
 function openOffer(id) {
   const o = OFFERS.find(x => x.id === id);
   if (!o) return;
-  document.getElementById('m-logo').innerHTML = o.logo;
-  document.getElementById('m-logo').style.cssText = `background:${o.logoColor};color:${logoTextColor(o.logoColor)};width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0;box-shadow:0 3px 8px rgba(0,0,0,0.2);`;
+  document.getElementById('m-logo').innerHTML = logoMarkup(o);
+  document.getElementById('m-logo').style.cssText = `background:${o.logoColor};color:${logoTextColor(o.logoColor)};width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0;box-shadow:0 3px 8px rgba(0,0,0,0.2);position:relative;overflow:hidden;`;
   document.getElementById('m-title').textContent = o.name;
   document.getElementById('m-cat').textContent = CAT_LABELS[o.cat] + ' · ' + o.used.toLocaleString('ru') + ' использовали';
   document.getElementById('m-body').innerHTML = `
