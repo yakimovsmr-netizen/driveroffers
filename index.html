@@ -6,9 +6,6 @@
 <title>Bono</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" href="assets/favicon-32.png">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon-180.png">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon-180.png">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
@@ -24,6 +21,8 @@
     --blue: #3b82f6;
     --red: #ef4444;
     --purple: #8b5cf6;
+    --brand: #3B82F6;
+    --brand2: #60A5FA;
     --card-r: 14px;
     --font: -apple-system, 'SF Pro Display', Arial, sans-serif;
     --shadow: none;
@@ -171,16 +170,17 @@
     padding: 10px 14px; cursor: pointer; border: 1.5px solid transparent;
     transition: all 0.2s; min-width: 72px;
   }
-  .cat-btn.active { background: rgba(245,166,35,0.12); border-color: var(--acc); }
+  .cat-btn.active { background: rgba(59,130,246,0.12); border-color: var(--brand); }
   .cat-btn.cat-best { background: rgba(245,166,35,0.08); border-color: rgba(245,166,35,0.35); }
-  .cat-btn.cat-best.active { background: rgba(245,166,35,0.18); }
+  .cat-btn.cat-best.active { background: rgba(245,166,35,0.18); border-color: var(--acc); }
   .cat-icon { color: var(--gray); display: flex; align-items: center; justify-content: center; }
   .cat-icon svg { width: 22px; height: 22px; stroke: currentColor; display: block; }
-  .cat-btn.active .cat-icon { color: var(--acc); }
+  .cat-btn.active .cat-icon { color: var(--brand); }
   .cat-btn.cat-best .cat-icon { color: var(--acc); }
   .cat-label { font-size: 11px; color: var(--gray); font-weight: 500; text-align: center; white-space: nowrap; }
-  .cat-btn.active .cat-label { color: var(--acc); font-weight: 600; }
+  .cat-btn.active .cat-label { color: var(--brand); font-weight: 600; }
   .cat-btn.cat-best .cat-label { color: var(--acc); font-weight: 600; }
+  .cat-btn.cat-best.active .cat-icon, .cat-btn.cat-best.active .cat-label { color: var(--acc); }
 
   /* ── SPONSORED BADGE ── */
   .offer-sponsored {
@@ -231,7 +231,7 @@
   .partner-cta {
     margin: 4px 14px 0;
     background: var(--bg2);
-    border: 1.5px dashed rgba(245,166,35,0.4);
+    border: 1.5px dashed rgba(59,130,246,0.4);
     border-radius: var(--card-r);
     padding: 14px;
     display: flex; align-items: center; gap: 12px;
@@ -239,7 +239,7 @@
   }
   .partner-cta-icon {
     width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
-    background: rgba(245,166,35,0.15); color: var(--acc);
+    background: rgba(59,130,246,0.15); color: var(--brand);
     display: flex; align-items: center; justify-content: center;
   }
   .partner-cta-icon svg { width: 22px; height: 22px; stroke: currentColor; }
@@ -290,8 +290,8 @@
   .nav-icon { color: var(--gray); display: flex; align-items: center; justify-content: center; }
   .nav-icon svg { width: 22px; height: 22px; stroke: currentColor; display: block; }
   .nav-label { font-size: 10px; color: var(--gray); font-weight: 500; }
-  .nav-item.active .nav-label { color: var(--acc); }
-  .nav-item.active .nav-icon { color: var(--acc); }
+  .nav-item.active .nav-label { color: var(--brand); }
+  .nav-item.active .nav-icon { color: var(--brand); }
 
   /* ── MODAL ── */
   .modal-overlay {
@@ -355,7 +355,7 @@
   /* ── PROFILE PAGE ── */
   .profile-page { padding: 16px; }
   .profile-header { background: var(--bg2); border-radius: var(--card-r); padding: 20px; margin-bottom: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.07); }
-  .profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--acc), var(--acc2)); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 12px; }
+  .profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), var(--brand2)); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 12px; }
   .profile-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
   .profile-status { display: inline-flex; align-items: center; gap: 5px; background: rgba(34,197,94,0.15); color: var(--green); font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
   .profile-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px; }
@@ -393,6 +393,7 @@
   .toast.show { opacity: 1; }
 
   .divider { height: 1px; background: rgba(255,255,255,0.05); margin: 0 14px; }
+  .search-field:focus { border-color: var(--brand) !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
 </style>
 </head>
 <body>
@@ -477,7 +478,7 @@
     <!-- PAGE: SEARCH -->
     <div class="page" id="page-search">
       <div style="padding:30px 20px;">
-        <input id="search-input" type="text" placeholder="Поиск офферов..." oninput="doSearch(this.value)"
+        <input id="search-input" class="search-field" type="text" placeholder="Поиск офферов..." oninput="doSearch(this.value)"
           style="width:100%;padding:13px 16px;border-radius:12px;background:var(--bg2);border:1px solid rgba(255,255,255,0.1);color:var(--white);font-size:15px;font-family:var(--font);outline:none;">
       </div>
       <div class="offers-list" id="search-results"></div>
@@ -501,9 +502,9 @@
           <div class="profile-status">● Верифицирован</div>
         </div>
         <div class="profile-stats">
-          <div class="stat-card"><div class="stat-val">12</div><div class="stat-label">Купонов использовано</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--brand);">12</div><div class="stat-label">Купонов использовано</div></div>
           <div class="stat-card"><div class="stat-val">3 840 ₽</div><div class="stat-label">Сэкономлено</div></div>
-          <div class="stat-card"><div class="stat-val">5</div><div class="stat-label">Избранное</div></div>
+          <div class="stat-card"><div class="stat-val" style="color:var(--brand);">5</div><div class="stat-label">Избранное</div></div>
         </div>
         <div class="menu-section">
           <div class="menu-item">
@@ -536,7 +537,7 @@
         </div>
         <div class="menu-section">
           <div class="menu-item" onclick="openPartner()">
-            <div class="menu-item-icon" style="background:rgba(245,166,35,0.15);color:#F5A623;" id="menu-icon-partner"></div>
+            <div class="menu-item-icon" style="background:rgba(59,130,246,0.15);color:#3B82F6;" id="menu-icon-partner"></div>
             <div class="menu-item-text">Стать партнёром</div>
             <div class="menu-item-arrow">›</div>
           </div>
@@ -681,7 +682,7 @@
     <div class="modal-handle"></div>
     <div style="padding:0 20px 28px;">
       <div style="text-align:center;margin-bottom:18px;">
-        <div style="width:64px;height:64px;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--acc);" id="partner-modal-icon"></div>
+        <div style="width:64px;height:64px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;color:var(--brand);" id="partner-modal-icon"></div>
         <div style="font-size:20px;font-weight:700;margin-bottom:6px;">Стать партнёром Bono</div>
         <div style="font-size:13px;color:var(--gray);">Разместите оффер и получите доступ к 5+ млн водителей и курьеров</div>
       </div>
